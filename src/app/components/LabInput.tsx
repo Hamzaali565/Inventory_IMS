@@ -8,6 +8,7 @@ interface Inp {
   inpStyle?: string;
   placeholder: string;
   type: string;
+  disabled?: boolean;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 const LabInput: React.FC<Inp> = ({
@@ -18,6 +19,7 @@ const LabInput: React.FC<Inp> = ({
   placeholder,
   onChange,
   type,
+  disabled,
 }) => {
   return (
     <div className=" flex justify-center">
@@ -30,6 +32,7 @@ const LabInput: React.FC<Inp> = ({
           className={`bg-white/10 backdrop-blur-lg rounded-lg shadow-xl p-2 ${inpStyle}`}
           placeholder={placeholder}
           onChange={onChange}
+          disabled={disabled}
           type={type}
           name=""
           id=""

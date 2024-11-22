@@ -2,9 +2,15 @@ import { Button } from "@/app/components/Button";
 import { Card } from "@/app/components/Card";
 import Heading from "@/app/components/Heading";
 import { LabInput } from "@/app/components/LabInput";
-import React from "react";
+import Modal from "@/app/components/Modal";
+import React, { useState } from "react";
 
 const Inventory = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenChange = (open: boolean) => {
+    setIsModalOpen(open);
+  };
   return (
     <div>
       <Card className="p-2 m-2">
@@ -28,6 +34,7 @@ const Inventory = () => {
           onChange={(e) => console.log(e.target.value)}
           placeholder="Select unit"
           type="text"
+          disabled={true}
         />
         <LabInput
           label="Purchase Price"
@@ -41,6 +48,14 @@ const Inventory = () => {
           placeholder="Enter sale price"
           type="number"
         />
+        <Button
+          onClick={() => setIsModalOpen(true)}
+          text="Select Unit"
+          className="mt-3"
+          classNameText="w-40"
+        />
+        <Modal isOpen={isModalOpen} onOpenChange={handleOpenChange} />
+
         <div className="flex justify-center space-x-2 my-4">
           <Button onClick={() => console.log("Clicked")} text="Save" />
           <Button onClick={() => console.log("Clicked")} text="Reset" />
