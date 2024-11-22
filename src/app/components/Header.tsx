@@ -2,78 +2,90 @@ import HeaderPart from "./HeaderPart";
 
 const menuConfig = [
   {
-    trigger: "File",
+    trigger: "Inventory",
     items: [
-      { label: "New Tab", shortcut: "⌘T" },
-      { label: "New Window", shortcut: "⌘N" },
-      { label: "New Incognito Window", disabled: true },
-      { separator: true },
+      { label: "Create Item" },
+      { label: "Physical Stock Taking" },
+      { label: "Good Receipt Note" },
+
       {
-        label: "Share",
-        subItems: [
-          { label: "Email link" },
-          { label: "Messages" },
-          { label: "Notes" },
-        ],
+        label: "Reports",
+        subItems: [{ label: "List of Items" }, { label: "List of GRNs" }],
       },
-      { separator: true },
-      { label: "Print", shortcut: "⌘P" },
     ],
   },
   {
-    trigger: "Edit",
+    trigger: "Sales",
     items: [
-      { label: "Undo", shortcut: "⌘Z" },
-      { label: "Redo", shortcut: "⇧⌘Z" },
-      { separator: true },
+      { label: "Create Shift" },
+      { label: "Close Shift" },
+      { label: "Create Sales Order" },
+      { label: "Pending Bills" },
+      { label: "Re-Print Bill" },
       {
-        label: "Find",
+        label: "Reports",
         subItems: [
-          { label: "Search the web" },
-          { separator: true },
-          { label: "Find..." },
-          { label: "Find Next" },
-          { label: "Find Previous" },
+          { label: "List of Bills" },
+          { label: "Date Wise Profit" },
+          { label: "Cash Status" },
+          { label: "Shift Status" },
         ],
       },
-      { separator: true },
-      { label: "Cut" },
-      { label: "Copy" },
-      { label: "Paste" },
     ],
   },
   {
-    trigger: "View",
+    trigger: "Purchase Order",
     items: [
-      { label: "Always Show Bookmarks Bar", checked: false },
-      { label: "Always Show Full URLs", checked: true },
-      { separator: true },
-      { label: "Reload", shortcut: "⌘R", inset: true },
-      { label: "Force Reload", shortcut: "⇧⌘R", disabled: true, inset: true },
-      { separator: true },
-      { label: "Toggle Fullscreen", inset: true },
-      { separator: true },
-      { label: "Hide Sidebar", inset: true },
+      { label: "Create Purchase Order" },
+      {
+        label: "Reports",
+        subItems: [{ label: "List Of Purchase Order" }],
+      },
     ],
   },
   {
-    trigger: "Profiles",
+    trigger: "Supplier",
     items: [
+      { label: "Add Supplier" },
+      { label: "Payments" },
       {
-        radioGroup: true,
-        value: "benoit",
-        subItems: [
-          { label: "Andy", value: "andy" },
-          { label: "Benoit", value: "benoit" },
-          { label: "Luis", value: "luis" },
-        ],
+        label: "Reports",
+        subItems: [{ label: "List Of Supplier" }],
       },
-      { separator: true },
-      { label: "Edit...", inset: true },
-      { separator: true },
-      { label: "Add Profile...", inset: true },
     ],
   },
+
+  //   {
+  //     trigger: "Purchase Order",
+  //     items: [
+  //       { label: "Purchase Order" },
+  //       { label: "Always Show Full URLs", checked: true },
+  //       { separator: true },
+  //       { label: "Reload", shortcut: "⌘R", inset: true },
+  //       { label: "Force Reload", shortcut: "⇧⌘R", disabled: true, inset: true },
+  //       { separator: true },
+  //       { label: "Toggle Fullscreen", inset: true },
+  //       { separator: true },
+  //       { label: "Hide Sidebar", inset: true },
+  //     ],
+  //   },
+  //   {
+  //     trigger: "Profiles",
+  //     items: [
+  //       {
+  //         label: "benoit",
+  //         subItems: [
+  //           { label: "Andy", value: "andy" },
+  //           { label: "Benoit", value: "benoit" },
+  //           { label: "Luis", value: "luis" },
+  //         ],
+  //       },
+  //       { separator: true },
+  //       { label: "Edit...", inset: true },
+  //       { separator: true },
+  //       { label: "Add Profile...", inset: true },
+  //     ],
+  //   },
 ];
 const App = () => {
   return (
