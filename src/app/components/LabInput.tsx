@@ -21,7 +21,9 @@ const LabInput: React.FC<Inp> = ({
 }) => {
   return (
     <div className=" flex justify-center">
-      <div className={`flex items-center justify-between w-96  ${mainStyle}`}>
+      <div
+        className={`flex items-center justify-between w-96 mt-2  ${mainStyle}`}
+      >
         <div className={`${textStyle}`}>{label}</div>
 
         <input

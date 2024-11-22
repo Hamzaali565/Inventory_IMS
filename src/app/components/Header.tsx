@@ -89,7 +89,7 @@ const menuConfig = [
 ];
 const App = () => {
   return (
-    <div>
+    <div className="">
       <HeaderPart menus={menuConfig} />
     </div>
   );
