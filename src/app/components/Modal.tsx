@@ -31,6 +31,7 @@ interface ModalProps {
   headerCode: string;
   headerName: string;
   headerStatus: string;
+  onClick: (item: { name: string; code: number; status: string }) => void;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -41,12 +42,12 @@ const Modal: React.FC<ModalProps> = ({
   headerCode,
   headerName,
   headerStatus,
+  onClick,
 }) => {
   const [data, setData] = useState(dataI);
   const [copyData, setCopyData] = useState(dataI);
   const [toggle, setToggle] = useState(false);
   const url = useSelector((state: RootState) => state.main.url);
-  console.log(url);
 
   useEffect(() => {
     if (isOpen) {
@@ -108,6 +109,15 @@ const Modal: React.FC<ModalProps> = ({
     console.log("filteredData", data);
   };
 
+  const sendToParent = (item: {
+    name: string;
+    code: number;
+    status: string;
+  }) => {
+    onClick(item);
+    onOpenChange(false); // Close the modal when data is sent
+  };
+
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent className="h-[83%] overflow-hidden">
@@ -139,7 +149,11 @@ const Modal: React.FC<ModalProps> = ({
             >
               {data &&
                 data.map((items, index) => (
-                  <div className="w-full flex mt-2" key={index}>
+                  <div
+                    className="w-full flex mt-2"
+                    key={index}
+                    onClick={() => sendToParent(items)}
+                  >
                     <p className="w-[20%] border-2 border-r-0 text-center ">
                       {items?.code}
                     </p>
