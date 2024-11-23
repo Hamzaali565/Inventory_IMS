@@ -13,16 +13,21 @@ interface DataItem {
 
 const Unit = () => {
   const [unitName, setUnitName] = useState("");
+  const [unitId, setUnitId] = useState("");
   const [unitData, setUnitData] = useState<DataItem[] | null>(null);
+  const [toggle, setToggle] = useState(false);
   const url = useSelector((state: RootState) => state.main.url);
   console.log(url);
 
   useEffect(() => {
     allUnits();
-  }, []);
+  }, [toggle]);
 
   const submitHandler = async () => {
     try {
+      if (unitId !== "") {
+        return updateHandler();
+      }
       const response = await fetch(`${url}/unit`, {
         method: "POST",
         headers: {
@@ -41,6 +46,8 @@ const Unit = () => {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       console.log("response", response);
+      reset();
+      setToggle(!toggle);
     } catch (error) {
       console.error("Error during request:", error);
     }
@@ -66,6 +73,38 @@ const Unit = () => {
     }
   };
 
+  const handleItem = (data: DataItem) => {
+    setUnitName(data?.unit_name);
+    setUnitId(data?.unit_id);
+  };
+
+  const reset = () => {
+    setUnitId("");
+    setUnitName("");
+  };
+
+  const updateHandler = async () => {
+    try {
+      const response = await fetch(`${url}/unit?unit_id=${unitId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ unit_name: unitName }),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log(data);
+      reset();
+      setToggle(!toggle);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div>
       <Card>
@@ -79,7 +118,14 @@ const Unit = () => {
           placeholder="Enter Unit Name"
           type="text"
         />
-        <Button onClick={() => submitHandler()} text="Save" className="my-4" />
+        <div className="flex justify-center space-x-3 mt-4">
+          <Button
+            onClick={() => submitHandler()}
+            text={unitId !== "" ? "Update" : "Save"}
+            className="my-4"
+          />
+          <Button onClick={() => reset()} text="reset" className="my-4" />
+        </div>
         <div className="w-full flex">
           <p className="w-[20%] border-2 border-r-0 text-center p-1">
             Unit Code
@@ -98,7 +144,12 @@ const Unit = () => {
               <p className="w-[60%] border-2 border-r-0 text-center">
                 {items?.unit_name}
               </p>
-              <p className="w-[20%] border-2 text-center">Update</p>
+              <p
+                onClick={() => handleItem(items)}
+                className="w-[20%] border-2 text-center hover:text-blue-800 cursor-pointer hover:underline hover:font-bold"
+              >
+                Update
+              </p>
             </div>
           ))}
       </Card>
