@@ -9,6 +9,7 @@ interface Inp {
   placeholder: string;
   type: string;
   disabled?: boolean;
+  value?: number | string;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 const LabInput: React.FC<Inp> = ({
@@ -20,6 +21,7 @@ const LabInput: React.FC<Inp> = ({
   onChange,
   type,
   disabled,
+  value,
 }) => {
   return (
     <div className=" flex justify-center">
@@ -36,6 +38,7 @@ const LabInput: React.FC<Inp> = ({
           type={type}
           name=""
           id=""
+          value={value}
         />
       </div>
     </div>

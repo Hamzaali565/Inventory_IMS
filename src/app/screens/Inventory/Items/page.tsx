@@ -7,6 +7,7 @@ import React, { useState } from "react";
 
 const Inventory = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [operation, setOperation] = useState("Add");
 
   const handleOpenChange = (open: boolean) => {
     setIsModalOpen(open);
@@ -16,7 +17,14 @@ const Inventory = () => {
       <Card className="p-2 m-2">
         <Heading text="Create Items" className="text-3xl" />
       </Card>
-      <Card className="p-2 m-2 lg:mt-14">
+      <Card className="p-2 m-2 lg:mt-6">
+        <div className="flex justify-center space-x-2 my-4">
+          <Button onClick={() => setOperation("Add")} text="Add" />
+          <Button onClick={() => setOperation("Update")} text="Update" />
+        </div>
+      </Card>
+
+      <Card className="p-2 m-2 lg:mt-6">
         <LabInput
           label="Items Name"
           onChange={(e) => console.log(e.target.value)}
@@ -50,14 +58,17 @@ const Inventory = () => {
         />
         <Button
           onClick={() => setIsModalOpen(true)}
-          text="Select Unit"
+          text={operation === "Add" ? "Select Unit" : "Select Item"}
           className="mt-3"
           classNameText="w-40"
         />
         <Modal isOpen={isModalOpen} onOpenChange={handleOpenChange} />
 
         <div className="flex justify-center space-x-2 my-4">
-          <Button onClick={() => console.log("Clicked")} text="Save" />
+          <Button
+            onClick={() => console.log("Clicked")}
+            text={operation === "Add" ? "Save" : "Update"}
+          />
           <Button onClick={() => console.log("Clicked")} text="Reset" />
         </div>
       </Card>
