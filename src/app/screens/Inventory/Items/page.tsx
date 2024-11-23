@@ -62,7 +62,14 @@ const Inventory = () => {
           className="mt-3"
           classNameText="w-40"
         />
-        <Modal isOpen={isModalOpen} onOpenChange={handleOpenChange} />
+        <Modal
+          isOpen={isModalOpen}
+          onOpenChange={handleOpenChange}
+          headerCode="Unit Code"
+          headerName="Unit Name"
+          headerStatus="Status"
+          placeholder="Search"
+        />
 
         <div className="flex justify-center space-x-2 my-4">
           <Button

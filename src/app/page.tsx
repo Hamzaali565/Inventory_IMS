@@ -12,8 +12,8 @@ export default function Home() {
       <div>
         <Header />
         {/* <Login /> */}
-        {/* <Inventory /> */}
-        <Unit />
+        <Inventory />
+        {/* <Unit /> */}
       </div>
     </Provider>
   );

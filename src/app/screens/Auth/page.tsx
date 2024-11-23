@@ -33,7 +33,7 @@ const Login = () => {
             onChange={(e) => console.log("hello", e.target.value)}
             mainStyle="p-2 justify-center space-x-4 "
           />
-          <p className="my-3 cursor-pointer text-center text-xs underline text-blue-600">
+          <p className="my-3 cursor-pointer text-center text-xs underline text-blue-800 hover:text-blue-400">
             Forget password? Contact to Hamza
           </p>
           <Button
