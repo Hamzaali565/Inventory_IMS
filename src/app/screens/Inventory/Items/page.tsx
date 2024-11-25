@@ -10,7 +10,8 @@ import { useSelector } from "react-redux";
 const Inventory = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [operation, setOperation] = useState("Add");
+  const [isItemOpen, setIsItemOpen] = useState(false);
+  const [item_id, setitem_id] = useState(0);
   const [itemDetail, setItemDetail] = useState({
     item_name: "",
     item_unit: "",
@@ -53,11 +54,37 @@ const Inventory = () => {
     console.log(itemDetail);
   };
 
+  const updateForItem = (value: {
+    code: number;
+    name: string;
+    item_unit: string;
+    unit_id: number;
+    category_name: string;
+    category_id: number;
+    p_price: number;
+    s_price: number;
+  }) => {
+    setItemDetail((prevValue) => ({
+      ...prevValue,
+      item_name: value.name,
+      item_unit: value.item_unit,
+      unit_id: value.unit_id,
+      category_name: value.category_name,
+      category_id: value.category_id,
+      p_price: value.p_price,
+      s_price: value.s_price,
+    }));
+    setitem_id(value.code);
+  };
+
   const handleOpenChange = (open: boolean) => {
     setIsModalOpen(open);
   };
   const handleOpenCategory = (open: boolean) => {
     setIsCategoryOpen(open);
+  };
+  const handleOpenItem = (open: boolean) => {
+    setIsItemOpen(open);
   };
 
   const submitItem = async () => {
@@ -103,12 +130,6 @@ const Inventory = () => {
     <div>
       <Card className="p-2 m-2">
         <Heading text="Create Items" className="text-3xl" />
-      </Card>
-      <Card className="p-2 m-2 lg:mt-6">
-        <div className="flex justify-center space-x-2 my-4">
-          <Button onClick={() => setOperation("Add")} text="Add" />
-          <Button onClick={() => setOperation("Update")} text="Update" />
-        </div>
       </Card>
 
       <Card className="p-2 m-2 lg:mt-6">
@@ -168,6 +189,12 @@ const Inventory = () => {
           className="mt-3"
           classNameText="w-40"
         />
+        <Button
+          onClick={() => setIsItemOpen(true)}
+          text={"Select Item"}
+          className="mt-3"
+          classNameText="w-40"
+        />
         <Modal
           isOpen={isModalOpen}
           onOpenChange={handleOpenChange}
@@ -186,11 +213,20 @@ const Inventory = () => {
           placeholder="Search"
           onClick={(data) => updateItemDetails(data, "category")}
         />
+        <Modal
+          isOpen={isItemOpen}
+          onOpenChange={handleOpenItem}
+          headerCode="Item Code"
+          headerName="Item Name"
+          headerStatus="Status"
+          placeholder="Search"
+          onClick={(data) => updateForItem(data)}
+        />
 
         <div className="flex justify-center space-x-2 my-4">
           <Button
             onClick={() => submitItem()}
-            text={operation === "Add" ? "Save" : "Update"}
+            text={item_id !== 0 ? "Update" : "Save"}
           />
           <Button onClick={() => reset()} text="Reset" />
         </div>

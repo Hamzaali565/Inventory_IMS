@@ -15,7 +15,15 @@ interface DataItem {
   code: number;
   name: string;
   status: string;
+  item_unit: string;
+  unit_id: number;
+  category_name: string;
+  category_id: number;
+  p_price: number;
+  s_price: number;
+  c_user: string;
 }
+
 interface UnitItem {
   unit_id: number;
   unit_name: string;
@@ -25,6 +33,17 @@ interface CategoryItem {
   id: number;
   category_name: string;
   status: string;
+}
+interface Item {
+  item_id: number;
+  item_name: string;
+  status: string;
+  item_unit: "";
+  unit_id: 0;
+  category_name: "";
+  category_id: 0;
+  p_price: 0;
+  s_price: 0;
 }
 
 interface ModalProps {
@@ -60,6 +79,9 @@ const Modal: React.FC<ModalProps> = ({
         return;
       } else if (headerName === "Category Name") {
         getCategory();
+        return;
+      } else if (headerName === "Item Name") {
+        getItem();
         return;
       }
       console.log("effected");
@@ -118,6 +140,35 @@ const Modal: React.FC<ModalProps> = ({
       console.log("error", error);
     }
   };
+  const getItem = async () => {
+    try {
+      const response = await fetch(`${url}/item`, {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      const category = await response.json();
+      const structuredData: {
+        code: number;
+        name: string;
+        status: string;
+        c_user: string;
+      }[] = category.data.data.map((items: Item) => ({
+        ...items,
+        code: items.item_id,
+        name: items.item_name,
+        status: "true",
+      }));
+
+      console.log(structuredData);
+      setData(structuredData);
+      setCopyData(structuredData);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
 
   const filterNames = (input: string) => {
     const searchTerm = input.toLowerCase();
@@ -148,6 +199,12 @@ const Modal: React.FC<ModalProps> = ({
     name: string;
     code: number;
     status: string;
+    item_unit: string;
+    unit_id: number;
+    category_name: string;
+    category_id: number;
+    p_price: number;
+    s_price: number;
   }) => {
     onClick(item);
     onOpenChange(false); // Close the modal when data is sent
