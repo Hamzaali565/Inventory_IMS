@@ -5,6 +5,7 @@ import Inventory from "./screens/Inventory/Items/page";
 import Unit from "./screens/Inventory/Unit/page";
 import { Provider } from "react-redux";
 import { store } from "../Store/store";
+import Category from "./screens/Inventory/Category/page";
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
         {/* <Login /> */}
         <Inventory />
         {/* <Unit /> */}
+        {/* <Category /> */}
       </div>
     </Provider>
   );

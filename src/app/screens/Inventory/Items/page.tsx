@@ -9,13 +9,17 @@ import { useSelector } from "react-redux";
 
 const Inventory = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [operation, setOperation] = useState("Add");
   const [itemDetail, setItemDetail] = useState({
     item_name: "",
-    unit_name: "",
+    item_unit: "",
     unit_id: 0,
+    category_name: "",
+    category_id: 0,
     p_price: 0,
     s_price: 0,
+    c_user: "Hamza",
   });
 
   const url = useSelector((state: RootState) => state.main.url);
@@ -27,9 +31,17 @@ const Inventory = () => {
     // Use for...in loop to iterate through keys in newValues
     console.log(value);
     if (typeof value === "object") {
+      if (iKey === "category") {
+        setItemDetail((previtems) => ({
+          ...previtems,
+          category_name: value?.name,
+          category_id: value?.code,
+        }));
+        return;
+      }
       setItemDetail((previtems) => ({
         ...previtems,
-        unit_name: value?.name,
+        item_unit: value?.name,
         unit_id: value?.code,
       }));
       return;
@@ -43,6 +55,9 @@ const Inventory = () => {
 
   const handleOpenChange = (open: boolean) => {
     setIsModalOpen(open);
+  };
+  const handleOpenCategory = (open: boolean) => {
+    setIsCategoryOpen(open);
   };
 
   const submitItem = async () => {
@@ -64,10 +79,24 @@ const Inventory = () => {
       if (!response.ok) {
         throw new Error(response.statusText);
       }
-      console.log(response.json());
+      console.log(await response.json());
+      reset();
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const reset = () => {
+    setItemDetail({
+      item_name: "",
+      item_unit: "",
+      unit_id: 0,
+      category_name: "",
+      category_id: 0,
+      p_price: 0,
+      s_price: 0,
+      c_user: "Hamza",
+    });
   };
 
   return (
@@ -98,14 +127,6 @@ const Inventory = () => {
           disabled
         />
         <LabInput
-          label="Unit"
-          onChange={(e) => console.log(e.target.value)}
-          placeholder="Select unit"
-          type="text"
-          disabled={true}
-          value={itemDetail?.unit_name}
-        />
-        <LabInput
           label="Purchase Price"
           onChange={(e) => updateItemDetails(e.target.value, "p_price")}
           placeholder="Enter purchase price"
@@ -119,9 +140,31 @@ const Inventory = () => {
           type="number"
           value={itemDetail?.s_price}
         />
+        <LabInput
+          label="Unit"
+          onChange={(e) => console.log(e.target.value)}
+          placeholder="Select unit"
+          type="text"
+          disabled={true}
+          value={itemDetail?.item_unit}
+        />
+        <LabInput
+          label="Category"
+          onChange={(e) => console.log(e.target.value)}
+          placeholder="Select Category"
+          type="text"
+          disabled={true}
+          value={itemDetail?.category_name}
+        />
         <Button
           onClick={() => setIsModalOpen(true)}
-          text={operation === "Add" ? "Select Unit" : "Select Item"}
+          text={"Select Unit"}
+          className="mt-3"
+          classNameText="w-40"
+        />
+        <Button
+          onClick={() => setIsCategoryOpen(true)}
+          text={"Select Category"}
           className="mt-3"
           classNameText="w-40"
         />
@@ -134,13 +177,22 @@ const Inventory = () => {
           placeholder="Search"
           onClick={(data) => updateItemDetails(data, "object")}
         />
+        <Modal
+          isOpen={isCategoryOpen}
+          onOpenChange={handleOpenCategory}
+          headerCode="Category Code"
+          headerName="Category Name"
+          headerStatus="Status"
+          placeholder="Search"
+          onClick={(data) => updateItemDetails(data, "category")}
+        />
 
         <div className="flex justify-center space-x-2 my-4">
           <Button
             onClick={() => submitItem()}
             text={operation === "Add" ? "Save" : "Update"}
           />
-          <Button onClick={() => console.log("Clicked")} text="Reset" />
+          <Button onClick={() => reset()} text="Reset" />
         </div>
       </Card>
     </div>

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
   AlertDialog,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogHeader,
@@ -20,6 +19,11 @@ interface DataItem {
 interface UnitItem {
   unit_id: number;
   unit_name: string;
+  status: string;
+}
+interface CategoryItem {
+  id: number;
+  category_name: string;
   status: string;
 }
 
@@ -51,7 +55,13 @@ const Modal: React.FC<ModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      getUnits();
+      if (headerName === "Unit Name") {
+        getUnits();
+        return;
+      } else if (headerName === "Category Name") {
+        getCategory();
+        return;
+      }
       console.log("effected");
     }
   }, [isOpen, toggle]);
@@ -81,6 +91,31 @@ const Modal: React.FC<ModalProps> = ({
       setCopyData(structuredData);
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const getCategory = async () => {
+    try {
+      const response = await fetch(`${url}/category`, {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      const category = await response.json();
+      const structuredData: { code: number; name: string; status: string }[] =
+        category.data.data.map((items: CategoryItem) => ({
+          code: items.id,
+          name: items.category_name,
+          status: "true",
+        }));
+
+      console.log(structuredData);
+      setData(structuredData);
+      setCopyData(structuredData);
+    } catch (error) {
+      console.log("error", error);
     }
   };
 
@@ -118,11 +153,21 @@ const Modal: React.FC<ModalProps> = ({
     onOpenChange(false); // Close the modal when data is sent
   };
 
+  const closeModal = () => {
+    onOpenChange(false);
+  };
+
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent className="h-[83%] overflow-hidden">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-center">
+            <p
+              className="text-red-600 text-right cursor-pointer"
+              onClick={() => closeModal()}
+            >
+              X
+            </p>
             <Heading text="Search Item" />
           </AlertDialogTitle>
           <AlertDialogTitle className="text-center">
@@ -144,7 +189,7 @@ const Modal: React.FC<ModalProps> = ({
               <p className="w-[20%] border-2 text-center p-1">{headerStatus}</p>
             </div>
             <div
-              className="border-2 h-[220%] overflow-y-auto scrollbar-hide"
+              className="border-2 p-2 overflow-y-auto scrollbar-hide"
               style={{}}
             >
               {data &&
@@ -166,9 +211,7 @@ const Modal: React.FC<ModalProps> = ({
                   </div>
                 ))}
             </div>
-            <div className="flex justify-center mt-2">
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-            </div>
+            <div className="flex justify-center mt-2"></div>
           </AlertDialogDescription>
         </AlertDialogHeader>
       </AlertDialogContent>
