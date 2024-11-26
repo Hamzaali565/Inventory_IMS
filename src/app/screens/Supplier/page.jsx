@@ -34,7 +34,7 @@ const Supplier = () => {
           name,
           email,
           phone,
-          status,
+          status: status === false ? 0 : 1,
         }),
       });
       if (!response.ok) {
@@ -72,11 +72,17 @@ const Supplier = () => {
   };
 
   const handleItem = (data) => {
+    console.log(data);
+
     setname(data?.name);
     setId(data?.id);
     setPhone(data?.phone);
     setEmail(data?.email);
-    setStatus(data?.status);
+    if (data?.status === 1) {
+      setStatus(true);
+    } else {
+      setStatus(false);
+    }
   };
 
   const reset = () => {
@@ -95,7 +101,13 @@ const Supplier = () => {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ name, phone, email, status, id }),
+        body: JSON.stringify({
+          name,
+          phone,
+          email,
+          status: status === false ? 0 : 1,
+          id,
+        }),
       });
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
