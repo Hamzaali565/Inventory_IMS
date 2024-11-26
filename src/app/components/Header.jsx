@@ -5,6 +5,8 @@ const menuConfig = [
     trigger: "Inventory",
     items: [
       { label: "Unit" },
+      { label: "Category" },
+      { label: "Location" },
       { label: "Create Item" },
       { label: "Physical Stock Taking" },
       { label: "Good Receipt Note" },
