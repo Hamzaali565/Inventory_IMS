@@ -15,29 +15,8 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar"; // Adjust the import path as needed
 
-interface MenuItem {
-  label?: string;
-  shortcut?: string;
-  separator?: boolean;
-  disabled?: boolean;
-  inset?: boolean;
-  checked?: boolean;
-  subItems?: MenuItem[];
-  radioGroup?: boolean;
-  value?: string; // Used for radio items
-}
-
-interface Menu {
-  trigger: string;
-  items: MenuItem[];
-}
-
-interface SubHeaderProps {
-  menus: Menu[];
-}
-
-const SubHeader: React.FC<SubHeaderProps> = ({ menus }) => {
-  const renderMenuItems = (items: MenuItem[]) => {
+const SubHeader = ({ menus }) => {
+  const renderMenuItems = (items) => {
     return items.map((item, index) => {
       if (item.separator) {
         return <MenubarSeparator key={index} className="my-2" />;

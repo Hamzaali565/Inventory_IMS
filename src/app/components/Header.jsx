@@ -88,7 +88,7 @@ const menuConfig = [
   //     ],
   //   },
 ];
-const App = () => {
+const Header = () => {
   return (
     <div className="">
       <HeaderPart menus={menuConfig} />
@@ -96,4 +96,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default Header;

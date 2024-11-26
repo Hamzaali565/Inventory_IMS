@@ -9,55 +9,8 @@ import {
 import { LabInput } from "./LabInput";
 import Heading from "./Heading";
 import { useSelector } from "react-redux";
-import { RootState } from "@/Store/store";
 
-interface DataItem {
-  code: number;
-  name: string;
-  status: string;
-  item_unit: string;
-  unit_id: number;
-  category_name: string;
-  category_id: number;
-  p_price: number;
-  s_price: number;
-  c_user: string;
-}
-
-interface UnitItem {
-  unit_id: number;
-  unit_name: string;
-  status: string;
-}
-interface CategoryItem {
-  id: number;
-  category_name: string;
-  status: string;
-}
-interface Item {
-  item_id: number;
-  item_name: string;
-  status: string;
-  item_unit: "";
-  unit_id: 0;
-  category_name: "";
-  category_id: 0;
-  p_price: 0;
-  s_price: 0;
-}
-
-interface ModalProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  dataI?: Array<DataItem>;
-  placeholder: string;
-  headerCode: string;
-  headerName: string;
-  headerStatus: string;
-  onClick: (item: { name: string; code: number; status: string }) => void;
-}
-
-const Modal: React.FC<ModalProps> = ({
+const Modal = ({
   isOpen,
   onOpenChange,
   dataI,
@@ -70,7 +23,7 @@ const Modal: React.FC<ModalProps> = ({
   const [data, setData] = useState(dataI);
   const [copyData, setCopyData] = useState(dataI);
   const [toggle, setToggle] = useState(false);
-  const url = useSelector((state: RootState) => state.main.url);
+  const url = useSelector((state) => state.main.url);
 
   useEffect(() => {
     if (isOpen) {
@@ -101,12 +54,11 @@ const Modal: React.FC<ModalProps> = ({
         throw new Error(response.statusText);
       }
       const units = await response.json();
-      const structuredData: { code: number; name: string; status: string }[] =
-        units.data.data.map((items: UnitItem) => ({
-          code: items.unit_id,
-          name: items.unit_name,
-          status: "true",
-        }));
+      const structuredData = units.data.data.map((items) => ({
+        code: items.unit_id,
+        name: items.unit_name,
+        status: "true",
+      }));
 
       console.log(structuredData);
       setData(structuredData);
@@ -126,12 +78,11 @@ const Modal: React.FC<ModalProps> = ({
         throw new Error(response.statusText);
       }
       const category = await response.json();
-      const structuredData: { code: number; name: string; status: string }[] =
-        category.data.data.map((items: CategoryItem) => ({
-          code: items.id,
-          name: items.category_name,
-          status: "true",
-        }));
+      const structuredData = category.data.data.map((items) => ({
+        code: items.id,
+        name: items.category_name,
+        status: "true",
+      }));
 
       console.log(structuredData);
       setData(structuredData);
@@ -150,12 +101,7 @@ const Modal: React.FC<ModalProps> = ({
         throw new Error(response.statusText);
       }
       const category = await response.json();
-      const structuredData: {
-        code: number;
-        name: string;
-        status: string;
-        c_user: string;
-      }[] = category.data.data.map((items: Item) => ({
+      const structuredData = category.data.data.map((items) => ({
         ...items,
         code: items.item_id,
         name: items.item_name,
@@ -170,7 +116,7 @@ const Modal: React.FC<ModalProps> = ({
     }
   };
 
-  const filterNames = (input: string) => {
+  const filterNames = (input) => {
     const searchTerm = input.toLowerCase();
     if (input === "") {
       setToggle(!toggle);
@@ -195,17 +141,7 @@ const Modal: React.FC<ModalProps> = ({
     console.log("filteredData", data);
   };
 
-  const sendToParent = (item: {
-    name: string;
-    code: number;
-    status: string;
-    item_unit: string;
-    unit_id: number;
-    category_name: string;
-    category_id: number;
-    p_price: number;
-    s_price: number;
-  }) => {
+  const sendToParent = (item) => {
     onClick(item);
     onOpenChange(false); // Close the modal when data is sent
   };

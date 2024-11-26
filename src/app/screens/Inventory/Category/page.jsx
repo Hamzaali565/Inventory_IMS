@@ -2,21 +2,15 @@ import { Button } from "@/app/components/Button";
 import { Card } from "@/app/components/Card";
 import Heading from "@/app/components/Heading";
 import { LabInput } from "@/app/components/LabInput";
-import { RootState } from "@/Store/store";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-
-interface DataItem {
-  id: string;
-  category_name: string;
-}
 
 const Category = () => {
   const [category_name, setCategoryName] = useState("");
   const [category_id, setCategory_id] = useState("");
-  const [unitData, setUnitData] = useState<DataItem[] | null>(null);
+  const [unitData, setUnitData] = useState(null);
   const [toggle, setToggle] = useState(false);
-  const url = useSelector((state: RootState) => state.main.url);
+  const url = useSelector((state) => state.main.url);
   console.log(url);
 
   useEffect(() => {
@@ -72,7 +66,7 @@ const Category = () => {
     }
   };
 
-  const handleItem = (data: DataItem) => {
+  const handleItem = (data) => {
     setCategoryName(data?.category_name);
     setCategory_id(data?.id);
   };

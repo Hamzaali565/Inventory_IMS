@@ -1,18 +1,8 @@
 "use-client";
 
 import React from "react";
-interface Inp {
-  mainStyle?: string;
-  textStyle?: string;
-  label: string;
-  inpStyle?: string;
-  placeholder: string;
-  type: string;
-  disabled?: boolean;
-  value?: number | string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-}
-const LabInput: React.FC<Inp> = ({
+
+const LabInput = ({
   mainStyle,
   textStyle,
   label,

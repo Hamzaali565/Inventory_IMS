@@ -3,7 +3,6 @@ import { Card } from "@/app/components/Card";
 import Heading from "@/app/components/Heading";
 import { LabInput } from "@/app/components/LabInput";
 import Modal from "@/app/components/Modal";
-import { RootState } from "@/Store/store";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 
@@ -16,26 +15,23 @@ const Inventory = () => {
     item_name: "",
     item_unit: "",
     unit_id: 0,
-    category_name: "",
+    category: "",
     category_id: 0,
     p_price: 0,
     s_price: 0,
     c_user: "Hamza",
   });
 
-  const url = useSelector((state: RootState) => state.main.url);
+  const url = useSelector((state) => state.main.url);
 
-  const updateItemDetails = (
-    value: string | number | { name: string; code: number; status: string },
-    iKey: string
-  ) => {
+  const updateItemDetails = (value, iKey) => {
     // Use for...in loop to iterate through keys in newValues
     console.log(value);
     if (typeof value === "object") {
       if (iKey === "category") {
         setItemDetail((previtems) => ({
           ...previtems,
-          category_name: value?.name,
+          category: value?.name,
           category_id: value?.code,
         }));
         return;
@@ -54,22 +50,15 @@ const Inventory = () => {
     console.log(itemDetail);
   };
 
-  const updateForItem = (value: {
-    code: number;
-    name: string;
-    item_unit: string;
-    unit_id: number;
-    category_name: string;
-    category_id: number;
-    p_price: number;
-    s_price: number;
-  }) => {
+  const updateForItem = (value) => {
+    console.log(value);
+
     setItemDetail((prevValue) => ({
       ...prevValue,
       item_name: value.name,
       item_unit: value.item_unit,
       unit_id: value.unit_id,
-      category_name: value.category_name,
+      category: value.category,
       category_id: value.category_id,
       p_price: value.p_price,
       s_price: value.s_price,
@@ -77,20 +66,20 @@ const Inventory = () => {
     setitem_id(value.code);
   };
 
-  const handleOpenChange = (open: boolean) => {
+  const handleOpenChange = (open) => {
     setIsModalOpen(open);
   };
-  const handleOpenCategory = (open: boolean) => {
+  const handleOpenCategory = (open) => {
     setIsCategoryOpen(open);
   };
-  const handleOpenItem = (open: boolean) => {
+  const handleOpenItem = (open) => {
     setIsItemOpen(open);
   };
 
   const submitItem = async () => {
     try {
       for (const key in itemDetail) {
-        if (itemDetail[key as keyof typeof itemDetail] === "") {
+        if (itemDetail[key] === "") {
           alert("Please fill all fields");
           return;
         }
@@ -113,17 +102,38 @@ const Inventory = () => {
     }
   };
 
+  const updateItem = async () => {
+    try {
+      const response = await fetch(`${url}/item`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...itemDetail, item_id }),
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      console.log(await response.json());
+      reset();
+    } catch (error) {
+      console.log("error of updateItem", error);
+    }
+  };
+
   const reset = () => {
     setItemDetail({
       item_name: "",
       item_unit: "",
       unit_id: 0,
-      category_name: "",
+      category: "",
       category_id: 0,
       p_price: 0,
       s_price: 0,
       c_user: "Hamza",
     });
+    setitem_id(0);
   };
 
   return (
@@ -175,7 +185,7 @@ const Inventory = () => {
           placeholder="Select Category"
           type="text"
           disabled={true}
-          value={itemDetail?.category_name}
+          value={itemDetail?.category}
         />
         <Button
           onClick={() => setIsModalOpen(true)}
@@ -191,7 +201,7 @@ const Inventory = () => {
         />
         <Button
           onClick={() => setIsItemOpen(true)}
-          text={"Select Item"}
+          text={"Update Item"}
           className="mt-3"
           classNameText="w-40"
         />
@@ -225,7 +235,7 @@ const Inventory = () => {
 
         <div className="flex justify-center space-x-2 my-4">
           <Button
-            onClick={() => submitItem()}
+            onClick={() => (item_id === 0 ? submitItem() : updateItem())}
             text={item_id !== 0 ? "Update" : "Save"}
           />
           <Button onClick={() => reset()} text="Reset" />

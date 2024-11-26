@@ -2,22 +2,15 @@ import { Button } from "@/app/components/Button";
 import { Card } from "@/app/components/Card";
 import Heading from "@/app/components/Heading";
 import { LabInput } from "@/app/components/LabInput";
-import { RootState } from "@/Store/store";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-
-interface DataItem {
-  unit_id: string;
-  unit_name: string;
-}
 
 const Unit = () => {
   const [unitName, setUnitName] = useState("");
   const [unitId, setUnitId] = useState("");
-  const [unitData, setUnitData] = useState<DataItem[] | null>(null);
+  const [unitData, setUnitData] = useState(null);
   const [toggle, setToggle] = useState(false);
-  const url = useSelector((state: RootState) => state.main.url);
-  console.log(url);
+  const url = useSelector((state) => state.main.url);
 
   useEffect(() => {
     allUnits();
@@ -73,7 +66,7 @@ const Unit = () => {
     }
   };
 
-  const handleItem = (data: DataItem) => {
+  const handleItem = (data) => {
     setUnitName(data?.unit_name);
     setUnitId(data?.unit_id);
   };

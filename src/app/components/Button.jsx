@@ -1,18 +1,6 @@
 import React from "react";
 
-interface Button {
-  text: string;
-  className?: string;
-  classNameText?: string;
-  onClick: React.MouseEventHandler<HTMLDivElement>;
-}
-
-const Button: React.FC<Button> = ({
-  onClick,
-  text,
-  className,
-  classNameText,
-}) => {
+const Button = ({ onClick, text, className, classNameText }) => {
   return (
     <div className={`flex justify-center ${className}`}>
       <div
