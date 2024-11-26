@@ -13,6 +13,7 @@ const LabInput = ({
   disabled,
   value,
   accept,
+  checked,
 }) => {
   return (
     <div className=" flex justify-center">
@@ -30,6 +31,7 @@ const LabInput = ({
           name=""
           id=""
           accept={accept}
+          checked={checked}
           value={value}
         />
       </div>
