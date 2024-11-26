@@ -7,6 +7,7 @@ import Unit from "./screens/Inventory/Unit/page";
 import Category from "./screens/Inventory/Category/page";
 import Inventory from "./screens/Inventory/Item/page";
 import Location from "./screens/Inventory/Location/page";
+import Stock from "./screens/Inventory/Stock/page";
 export default function Home() {
   return (
     <Provider store={store}>
@@ -16,7 +17,8 @@ export default function Home() {
         {/* <Inventory /> */}
         {/* <Unit /> */}
         {/* <Category /> */}
-        <Location />
+        {/* <Location /> */}
+        <Stock />
       </div>
     </Provider>
   );

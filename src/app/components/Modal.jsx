@@ -36,6 +36,9 @@ const Modal = ({
       } else if (headerName === "Item Name") {
         getItem();
         return;
+      } else if (headerName === "Location Name") {
+        getLocation();
+        return;
       }
       console.log("effected");
     }
@@ -115,6 +118,29 @@ const Modal = ({
       console.log("error", error);
     }
   };
+  const getLocation = async () => {
+    try {
+      const response = await fetch(`${url}/location`, {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      const category = await response.json();
+      const structuredData = category.data.data.map((items) => ({
+        ...items,
+        code: items.id,
+        name: items.name,
+        status: "true",
+      }));
+
+      setData(structuredData);
+      setCopyData(structuredData);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
 
   const filterNames = (input) => {
     const searchTerm = input.toLowerCase();
@@ -172,7 +198,7 @@ const Modal = ({
             />
           </AlertDialogTitle>
           <AlertDialogDescription>
-            <div className="w-full flex">
+            <div className="w-full flex ">
               <p className="w-[20%] border-2 border-r-0 text-center p-1">
                 {headerCode}
               </p>
@@ -188,7 +214,7 @@ const Modal = ({
               {data &&
                 data.map((items, index) => (
                   <div
-                    className="w-full flex mt-2"
+                    className="w-full flex mt-2 cursor-pointer"
                     key={index}
                     onClick={() => sendToParent(items)}
                   >

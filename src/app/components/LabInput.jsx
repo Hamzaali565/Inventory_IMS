@@ -12,13 +12,14 @@ const LabInput = ({
   type,
   disabled,
   value,
+  accept,
 }) => {
   return (
     <div className=" flex justify-center">
       <div
         className={`flex items-center justify-between w-96 mt-2  ${mainStyle}`}
       >
-        <div className={`${textStyle}`}>{label}</div>
+        {label && <div className={`${textStyle}`}>{label}</div>}
 
         <input
           className={`bg-white/10 backdrop-blur-lg rounded-lg shadow-xl p-2 ${inpStyle}`}
@@ -28,6 +29,7 @@ const LabInput = ({
           type={type}
           name=""
           id=""
+          accept={accept}
           value={value}
         />
       </div>
