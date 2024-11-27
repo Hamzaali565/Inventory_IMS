@@ -1,24 +1,496 @@
+"use-client";
+
 import { Button } from "@/app/components/Button";
 import { Card } from "@/app/components/Card";
 import Heading from "@/app/components/Heading";
 import { LabInput } from "@/app/components/LabInput";
-import React from "react";
+import Modal from "@/app/components/Modal";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
 
 const PurcahseOrder = () => {
+  const [openLocation, setOpenLocation] = useState(false);
+  const [openSupplier, setOpenSupplier] = useState(false);
+  const [openPO, setOpenPO] = useState(false);
+  const [location, setLocation] = useState(null);
+  const [supplier, setSupplier] = useState(null);
+  const [po_date, setPoDate] = useState("");
+  const [isItemOpen, setIsItemOpen] = useState(false);
+  const [grnTransaction, setGrnTransaction] = useState(false);
+  const [modalIndex, setModalIndex] = useState(0);
+  const [po_detail, setPODetail] = useState([]);
+  const [data, setData] = useState([
+    {
+      item_name: "",
+      item_id: 0,
+      qty: 0,
+      charges: 0,
+      amount: 0,
+    },
+  ]);
+
+  const url = useSelector((state) => state.main.url);
+
+  const handleOpenLocaion = (open) => {
+    setOpenLocation(open);
+  };
+
+  const handleOpenSupplier = (open) => {
+    setOpenSupplier(open);
+  };
+  const handleOpenPO = (open) => {
+    setOpenPO(open);
+  };
+
+  const openModal = (index) => {
+    console.log(index);
+    setIsItemOpen(true);
+    setModalIndex(index);
+  };
+
+  const updateValues = (value, index, key) => {
+    const updateInputs = data.map((items, itemIndex) => {
+      if (itemIndex === index) {
+        if (key === "charges") {
+          return {
+            ...items,
+            charges: +value,
+            amount: value * items.qty,
+          };
+        } else if (key === "qty") {
+          return {
+            ...items,
+            qty: +value,
+            amount: value * items.charges,
+          };
+        }
+        return { ...items, [key]: value };
+      }
+      return items;
+    });
+    setData(updateInputs);
+  };
+
+  const handleRow = (rowIndex, type) => {
+    if (type === "add") {
+      setData((prevData) => [
+        ...prevData,
+        {
+          item_name: "",
+          item_id: 0,
+          qty: 0,
+          charges: 0,
+          amount: 0,
+        },
+      ]);
+      return;
+    } else if (type === "less") {
+      if (data.length === 1) {
+        return;
+      }
+      let filterData = data.filter((_, index) => index !== rowIndex);
+      setData(filterData);
+    }
+  };
+
+  const handleOpenItem = (open, index) => {
+    setIsItemOpen(open);
+    setModalIndex(index);
+  };
+
+  const updateForItem = (value, key) => {
+    let checkDulpicate;
+    if (po_detail.length !== 0) {
+      checkDulpicate = po_detail.find((items) => items.item_id === value.code);
+      if (checkDulpicate) {
+        alert("Duplicate items not allowed !!!");
+        return;
+      }
+      let updatedData = po_detail.map((item, itemIndex) => {
+        if (itemIndex === modalIndex) {
+          if (key === "item_name") {
+            return {
+              ...item,
+              item_name: value.name,
+              item_id: value.code,
+            };
+          }
+        }
+        return item;
+      });
+      console.log(updatedData);
+      setPODetail(updatedData);
+      return;
+    }
+    checkDulpicate = data.find((items) => items.item_id === value.code);
+
+    if (checkDulpicate) {
+      alert("Duplicate items not allowed !!!");
+      return;
+    }
+
+    let updatedData = data.map((item, itemIndex) => {
+      if (itemIndex === modalIndex) {
+        if (key === "item_name") {
+          return {
+            ...item,
+            item_name: value.name,
+            item_id: value.code,
+          };
+        }
+      }
+      return item;
+    });
+    console.log(updatedData);
+    setData(updatedData);
+  };
+
+  const validation = () => {
+    if (!supplier) {
+      alert("Please select a supplier");
+      return;
+    } else if (!location) {
+      alert("Please select a location");
+      return;
+    } else if (po_date === "") {
+      alert("Please select a PO Date");
+      return;
+    }
+    if (po_detail.length !== 0) {
+      if (grnTransaction) {
+        alert(`Cannot edit as GRN is Created!!!`);
+        return;
+      }
+      po_detail.map((items, index) => {
+        const { item_name, item_id, qty, charges, amount } = items;
+        if (![item_name, item_id, qty, charges, amount].every(Boolean))
+          alert(`Some data missing at line no ${index + 1}`);
+        return;
+      });
+      updatePO();
+      return;
+    }
+    data.map((items, index) => {
+      const { item_name, item_id, qty, charges, amount } = items;
+      if (![item_name, item_id, qty, charges, amount].every(Boolean))
+        alert(`Some data missing at line no ${index + 1}`);
+      return;
+    });
+    submitData();
+  };
+
+  const reset = () => {
+    setSupplier(null);
+    setLocation(null);
+    setPoDate("");
+    setData([
+      {
+        item_name: "",
+        item_id: 0,
+        qty: 0,
+        charges: 0,
+        amount: 0,
+      },
+    ]);
+    setPODetail([]);
+    setGrnTransaction(false);
+  };
+
+  const submitData = async () => {
+    try {
+      const response = await fetch(`${url}/purchase_order`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          po_date,
+          supplier_name: supplier?.name,
+          supplier_id: supplier?.code,
+          location: location?.name,
+          location_id: location?.code,
+          data,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      const dataResponse = await response.json();
+      console.log(dataResponse);
+      reset();
+      alert(`Purchase order created 🙌`);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  const getPoDetail = async (value) => {
+    try {
+      const response = await fetch(
+        `${url}/purchase_order_detail?po_no=${value?.code}`
+      );
+      const dataResponse = (await response.json()).data;
+      console.log(dataResponse);
+
+      const po_master = dataResponse.data.po_master[0];
+      setGrnTransaction(po_master.grn_transaction);
+      setPODetail(dataResponse?.data?.po_child);
+      setSupplier({
+        name: po_master?.supplier_name,
+        code: po_master?.supplier_id,
+      });
+      setLocation({
+        name: po_master?.location,
+        code: po_master?.location_id,
+      });
+      setPoDate(po_master?.po_date);
+      setData([]);
+
+      // update po_master array instead
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const updatePO = async () => {
+    try {
+      console.log({
+        po_date: po_date,
+        supplier: supplier,
+        location: location,
+        po_detail,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <div>
       <Card className={"p-2 mt-3"}>
         <Heading text={"Create Purchase Order"} className={"text-2xl"} />
       </Card>
 
-      <Card className={"grid grid-cols-3 gap-3 p-2 mt-2"}>
-        <Button text={"Supplier"} />
-        <Button text={"Location"} />
-        <Button text={"PO"} />
-        <LabInput placeholder={"Suppier Name"} disabled={true} />
-        <LabInput placeholder={"Location"} disabled={true} />
-        <LabInput label={"PO Date"} type={"date"} />
+      <Card className={"p-2 mt-2"}>
+        <div className={"grid grid-cols-3 gap-3 p-2 mt-2"}>
+          <Button text={"Supplier"} onClick={() => setOpenSupplier(true)} />
+          <Button text={"Location"} onClick={() => setOpenLocation(true)} />
+          <Button text={"PO"} onClick={() => setOpenPO(true)} />
+          <LabInput
+            placeholder={"Suppier Name"}
+            disabled={true}
+            value={supplier?.name || ""}
+          />
+          <LabInput
+            placeholder={"Location"}
+            disabled={true}
+            value={location?.name || ""}
+          />
+          <LabInput
+            label={"PO Date"}
+            type={"date"}
+            value={po_date}
+            onChange={(e) => setPoDate(e.target.value)}
+          />
+        </div>
+        <div className="flex justify-center space-x-3 mt-4">
+          {/* buttons */}
+          <Button
+            text={po_detail.length === 0 ? "Save" : "Update"}
+            onClick={validation}
+          />
+          <Button text={"Reset"} onClick={reset} />
+        </div>
       </Card>
+
+      <Card className={"mt-2 p-2"}>
+        <div className="flex border-2 ">
+          <p className="w-[10%] text-center border-r-2">Select Item</p>
+          <p className="w-[20%] text-center border-r-2">Item Name</p>
+          <p className="w-[20%] text-center border-r-2">Quantity</p>
+          <p className="w-[20%] text-center border-r-2">Charges</p>
+          <p className="w-[20%] text-center border-r-2">Amount/Total</p>
+          <p className="w-[10%] text-center">Add/Rem</p>
+        </div>
+
+        {data.length !== 0 &&
+          data.map((item, index) => (
+            <div className="flex border-2 mt-2 p-1" key={index}>
+              <p className="w-[10%] text-center border-r-2">
+                <Button onClick={() => openModal(index)} text={"Item"} />
+              </p>
+              <p className="w-[20%] flex justify-center border-r-2">
+                <LabInput
+                  placeholder={"item Name"}
+                  disabled={true}
+                  mainStyle={"w-[100%] mt-0"}
+                  inpStyle={"p-1"}
+                  value={item?.item_name}
+                />
+              </p>
+              <p className="w-[20%] border-r-2 flex justify-center">
+                <LabInput
+                  placeholder={"Quantity"}
+                  disabled={false}
+                  mainStyle={"w-[100%] mt-0"}
+                  inpStyle={"p-1"}
+                  type={"number"}
+                  value={item?.qty}
+                  onChange={(e) => updateValues(e.target.value, index, "qty")}
+                />
+              </p>
+              <p className="w-[20%] text-center border-r-2 flex justify-center">
+                {" "}
+                <LabInput
+                  placeholder={"Charges"}
+                  disabled={false}
+                  mainStyle={"w-[100%] mt-0"}
+                  inpStyle={"p-1"}
+                  type={"number"}
+                  value={item?.charges}
+                  onChange={(e) =>
+                    updateValues(e.target.value, index, "charges")
+                  }
+                />
+              </p>
+              <p className="w-[20%] text-center border-r-2 flex justify-center">
+                {" "}
+                <LabInput
+                  placeholder={"Amount"}
+                  disabled={true}
+                  mainStyle={"w-[100%] mt-0"}
+                  type={"number"}
+                  inpStyle={"p-1"}
+                  value={item?.amount}
+                  onChange={(e) =>
+                    updateValues(e.target.value, index, "amount")
+                  }
+                />
+              </p>
+              <div className="w-[10%] grid grid-cols-2 text-2xl justify-items-center ">
+                <p
+                  className="text-red-600 font-bold cursor-pointer"
+                  onClick={() => handleRow(index, "add")}
+                >
+                  +
+                </p>
+                <p
+                  className="text-red-600 font-bold cursor-pointer"
+                  onClick={() => handleRow(index, "less")}
+                >
+                  _
+                </p>
+              </div>
+            </div>
+          ))}
+
+        {po_detail.length !== 0 &&
+          po_detail.map((item, index) => (
+            <div className="flex border-2 mt-2 p-1" key={index}>
+              <p className="w-[10%] text-center border-r-2">
+                <Button onClick={() => openModal(index)} text={"Item"} />
+              </p>
+              <p className="w-[20%] flex justify-center border-r-2">
+                <LabInput
+                  placeholder={"item Name"}
+                  disabled={true}
+                  mainStyle={"w-[100%] mt-0"}
+                  inpStyle={"p-1"}
+                  value={item?.item_name}
+                />
+              </p>
+              <p className="w-[20%] border-r-2 flex justify-center">
+                <LabInput
+                  placeholder={"Quantity"}
+                  disabled={false}
+                  mainStyle={"w-[100%] mt-0"}
+                  inpStyle={"p-1"}
+                  type={"number"}
+                  value={item?.qty}
+                  onChange={(e) => updateValues(e.target.value, index, "qty")}
+                />
+              </p>
+              <p className="w-[20%] text-center border-r-2 flex justify-center">
+                {" "}
+                <LabInput
+                  placeholder={"Charges"}
+                  disabled={false}
+                  mainStyle={"w-[100%] mt-0"}
+                  inpStyle={"p-1"}
+                  type={"number"}
+                  value={item?.charges}
+                  onChange={(e) =>
+                    updateValues(e.target.value, index, "charges")
+                  }
+                />
+              </p>
+              <p className="w-[20%] text-center border-r-2 flex justify-center">
+                {" "}
+                <LabInput
+                  placeholder={"Amount"}
+                  disabled={true}
+                  mainStyle={"w-[100%] mt-0"}
+                  type={"number"}
+                  inpStyle={"p-1"}
+                  value={item?.amount}
+                  onChange={(e) =>
+                    updateValues(e.target.value, index, "amount")
+                  }
+                />
+              </p>
+              <div className="w-[10%] grid grid-cols-2 text-2xl justify-items-center ">
+                <p
+                  className="text-red-600 font-bold cursor-pointer"
+                  onClick={() => handleRow(index, "add")}
+                >
+                  +
+                </p>
+                <p
+                  className="text-red-600 font-bold cursor-pointer"
+                  onClick={() => handleRow(index, "less")}
+                >
+                  _
+                </p>
+              </div>
+            </div>
+          ))}
+      </Card>
+
+      <Modal
+        isOpen={openLocation}
+        onOpenChange={handleOpenLocaion}
+        headerCode="location Code"
+        headerName="Location Name"
+        headerStatus="Status"
+        placeholder="Search"
+        onClick={(data) => setLocation(data)}
+      />
+      <Modal
+        isOpen={openSupplier}
+        onOpenChange={handleOpenSupplier}
+        headerCode="Supplier Code"
+        headerName="Supplier Name"
+        headerStatus="Status"
+        placeholder="Search"
+        onClick={(data) => setSupplier(data)}
+      />
+      <Modal
+        isOpen={isItemOpen}
+        onOpenChange={handleOpenItem}
+        headerCode="Item Code"
+        headerName="Item Name"
+        headerStatus="Status"
+        placeholder="Search"
+        onClick={(data) => updateForItem(data, "item_name")}
+      />
+      <Modal
+        isOpen={openPO}
+        onOpenChange={handleOpenPO}
+        headerCode="PO No"
+        headerName="Suppliers Name"
+        headerStatus="Date"
+        placeholder="Search"
+        onClick={(data) => getPoDetail(data)}
+      />
     </div>
   );
 };

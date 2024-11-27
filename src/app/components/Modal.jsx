@@ -9,6 +9,7 @@ import {
 import { LabInput } from "./LabInput";
 import Heading from "./Heading";
 import { useSelector } from "react-redux";
+import moment from "moment";
 
 const Modal = ({
   isOpen,
@@ -38,6 +39,12 @@ const Modal = ({
         return;
       } else if (headerName === "Location Name") {
         getLocation();
+        return;
+      } else if (headerName === "Supplier Name") {
+        getSupplier();
+        return;
+      } else if (headerName === "Suppliers Name") {
+        getPO();
         return;
       }
       console.log("effected");
@@ -94,6 +101,7 @@ const Modal = ({
       console.log("error", error);
     }
   };
+
   const getItem = async () => {
     try {
       const response = await fetch(`${url}/item`, {
@@ -118,6 +126,7 @@ const Modal = ({
       console.log("error", error);
     }
   };
+
   const getLocation = async () => {
     try {
       const response = await fetch(`${url}/location`, {
@@ -133,6 +142,54 @@ const Modal = ({
         code: items.id,
         name: items.name,
         status: "true",
+      }));
+
+      setData(structuredData);
+      setCopyData(structuredData);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  const getSupplier = async () => {
+    try {
+      const response = await fetch(`${url}/supplier`, {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      const category = await response.json();
+      const structuredData = category.data.data.map((items) => ({
+        ...items,
+        code: items.id,
+        name: items.name,
+        status: "true",
+      }));
+
+      setData(structuredData);
+      setCopyData(structuredData);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  const getPO = async () => {
+    try {
+      const response = await fetch(`${url}/purchase_order`, {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      const category = await response.json();
+      const structuredData = category.data.data.map((items) => ({
+        ...items,
+        code: items.po_no,
+        name: items.supplier_name,
+        status: moment(items.c_date).format("DD/MM/YYYY"),
       }));
 
       setData(structuredData);
@@ -208,7 +265,7 @@ const Modal = ({
               <p className="w-[20%] border-2 text-center p-1">{headerStatus}</p>
             </div>
             <div
-              className="border-2 p-2 overflow-y-auto scrollbar-hide"
+              className="border-2 p-2 overflow-y-auto scrollbar-hide max-h-[60vh]"
               style={{}}
             >
               {data &&
