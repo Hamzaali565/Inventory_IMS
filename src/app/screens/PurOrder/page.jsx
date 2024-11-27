@@ -322,7 +322,8 @@ const PurcahseOrder = () => {
       setPODetail(dataResponse?.data?.po_child);
       setPOMaster(dataResponse?.data?.po_master);
       setData([]);
-
+      setSupplier(null);
+      setLocation(null);
       // update po_master array instead
     } catch (error) {
       console.log(error);
@@ -331,12 +332,28 @@ const PurcahseOrder = () => {
 
   const updatePO = async () => {
     try {
-      console.log({
-        po_detail,
-        po_master,
+      const response = await fetch(`${url}/purchase_order`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          po_no: po_master[0].po_no,
+          po_date: po_master[0].po_date,
+          supplier_name: po_master[0].supplier_name,
+          supplier_id: po_master[0].supplier_id,
+          data: po_detail,
+          location: po_master[0].location,
+          location_id: po_master[0].location_id,
+        }),
       });
+      const dataResponse = await response.json();
+      console.log(dataResponse);
+      alert("Purchase order updated successfully !!!");
+      reset();
     } catch (error) {
-      console.log(error);
+      console.log("error ,,", error);
     }
   };
   return (

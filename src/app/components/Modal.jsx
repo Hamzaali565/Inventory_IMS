@@ -265,7 +265,7 @@ const Modal = ({
               <p className="w-[20%] border-2 text-center p-1">{headerStatus}</p>
             </div>
             <div
-              className="border-2 p-2 overflow-y-auto scrollbar-hide max-h-[60vh]"
+              className="border-2 p-2 overflow-y-auto scrollbar-hide max-h-[50vh]"
               style={{}}
             >
               {data &&
