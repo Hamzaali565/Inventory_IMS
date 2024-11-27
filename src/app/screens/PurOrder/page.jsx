@@ -19,6 +19,7 @@ const PurcahseOrder = () => {
   const [grnTransaction, setGrnTransaction] = useState(false);
   const [modalIndex, setModalIndex] = useState(0);
   const [po_detail, setPODetail] = useState([]);
+  const [po_master, setPOMaster] = useState([]);
   const [data, setData] = useState([
     {
       item_name: "",
@@ -49,6 +50,29 @@ const PurcahseOrder = () => {
   };
 
   const updateValues = (value, index, key) => {
+    if (po_detail.length !== 0) {
+      const updateInputs = po_detail.map((items, itemIndex) => {
+        if (itemIndex === index) {
+          if (key === "charges") {
+            return {
+              ...items,
+              charges: +value,
+              amount: value * items.qty,
+            };
+          } else if (key === "qty") {
+            return {
+              ...items,
+              qty: +value,
+              amount: value * items.charges,
+            };
+          }
+          return { ...items, [key]: value };
+        }
+        return items;
+      });
+      setPODetail(updateInputs);
+      return;
+    }
     const updateInputs = data.map((items, itemIndex) => {
       if (itemIndex === index) {
         if (key === "charges") {
@@ -72,6 +96,29 @@ const PurcahseOrder = () => {
   };
 
   const handleRow = (rowIndex, type) => {
+    if (po_detail.length !== 0) {
+      if (type === "add") {
+        setPODetail((prevData) => [
+          ...prevData,
+          {
+            item_name: "",
+            item_id: 0,
+            qty: 0,
+            charges: 0,
+            amount: 0,
+            po_no: po_detail[0]?.po_no,
+            grn_status: 0,
+          },
+        ]);
+        return;
+      } else if (type === "less") {
+        if (po_detail.length === 1) {
+          return;
+        }
+        let filterData = po_detail.filter((_, index) => index !== rowIndex);
+        setPODetail(filterData);
+      }
+    }
     if (type === "add") {
       setData((prevData) => [
         ...prevData,
@@ -145,17 +192,44 @@ const PurcahseOrder = () => {
     setData(updatedData);
   };
 
-  const validation = () => {
-    if (!supplier) {
-      alert("Please select a supplier");
-      return;
-    } else if (!location) {
-      alert("Please select a location");
-      return;
-    } else if (po_date === "") {
-      alert("Please select a PO Date");
+  const update_details = (value, key) => {
+    if (po_master.length !== 0) {
+      const updatePOMaster = po_master.map((items) => {
+        if (key === "location") {
+          return { ...items, location: value?.name, location_id: value?.code };
+        }
+        if (key === "supplier") {
+          return {
+            ...items,
+            supplier_name: value?.name,
+            supplier_id: value?.code,
+          };
+        }
+        if (key === "po_date") {
+          return {
+            ...items,
+            po_date: value,
+          };
+        }
+        return items;
+      });
+      setPOMaster(updatePOMaster);
       return;
     }
+
+    if (key === "supplier") {
+      setSupplier(value);
+      return;
+    } else if (key === "location") {
+      setLocation(value);
+      return;
+    } else if (key === "po_date") {
+      setPoDate(value);
+      return;
+    }
+  };
+
+  const validation = () => {
     if (po_detail.length !== 0) {
       if (grnTransaction) {
         alert(`Cannot edit as GRN is Created!!!`);
@@ -168,6 +242,16 @@ const PurcahseOrder = () => {
         return;
       });
       updatePO();
+      return;
+    }
+    if (!supplier) {
+      alert("Please select a supplier");
+      return;
+    } else if (!location) {
+      alert("Please select a location");
+      return;
+    } else if (po_date === "") {
+      alert("Please select a PO Date");
       return;
     }
     data.map((items, index) => {
@@ -194,6 +278,7 @@ const PurcahseOrder = () => {
     ]);
     setPODetail([]);
     setGrnTransaction(false);
+    setPOMaster([]);
   };
 
   const submitData = async () => {
@@ -235,15 +320,7 @@ const PurcahseOrder = () => {
       const po_master = dataResponse.data.po_master[0];
       setGrnTransaction(po_master.grn_transaction);
       setPODetail(dataResponse?.data?.po_child);
-      setSupplier({
-        name: po_master?.supplier_name,
-        code: po_master?.supplier_id,
-      });
-      setLocation({
-        name: po_master?.location,
-        code: po_master?.location_id,
-      });
-      setPoDate(po_master?.po_date);
+      setPOMaster(dataResponse?.data?.po_master);
       setData([]);
 
       // update po_master array instead
@@ -255,10 +332,8 @@ const PurcahseOrder = () => {
   const updatePO = async () => {
     try {
       console.log({
-        po_date: po_date,
-        supplier: supplier,
-        location: location,
         po_detail,
+        po_master,
       });
     } catch (error) {
       console.log(error);
@@ -278,18 +353,18 @@ const PurcahseOrder = () => {
           <LabInput
             placeholder={"Suppier Name"}
             disabled={true}
-            value={supplier?.name || ""}
+            value={supplier?.name || po_master[0]?.supplier_name || ""}
           />
           <LabInput
             placeholder={"Location"}
             disabled={true}
-            value={location?.name || ""}
+            value={location?.name || po_master[0]?.location || ""}
           />
           <LabInput
             label={"PO Date"}
             type={"date"}
-            value={po_date}
-            onChange={(e) => setPoDate(e.target.value)}
+            value={po_date || po_master[0]?.po_date || ""}
+            onChange={(e) => update_details(e.target.value, "po_date")}
           />
         </div>
         <div className="flex justify-center space-x-3 mt-4">
@@ -462,7 +537,7 @@ const PurcahseOrder = () => {
         headerName="Location Name"
         headerStatus="Status"
         placeholder="Search"
-        onClick={(data) => setLocation(data)}
+        onClick={(data) => update_details(data, "location")}
       />
       <Modal
         isOpen={openSupplier}
@@ -471,7 +546,7 @@ const PurcahseOrder = () => {
         headerName="Supplier Name"
         headerStatus="Status"
         placeholder="Search"
-        onClick={(data) => setSupplier(data)}
+        onClick={(data) => update_details(data, "supplier")}
       />
       <Modal
         isOpen={isItemOpen}
