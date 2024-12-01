@@ -10,6 +10,7 @@ import Location from "./screens/Inventory/Location/page";
 import Stock from "./screens/Inventory/Stock/page";
 import Supplier from "./screens/Supplier/page";
 import PurcahseOrder from "./screens/PurOrder/page";
+import GRN from "./screens/Inventory/GRN/page";
 export default function Home() {
   return (
     <Provider store={store}>
@@ -20,9 +21,10 @@ export default function Home() {
         {/* <Unit /> */}
         {/* <Category /> */}
         {/* <Location /> */}
-        <Stock />
+        {/* <Stock /> */}
         {/* <Supplier /> */}
         {/* <PurcahseOrder /> */}
+        <GRN />
       </div>
     </Provider>
   );

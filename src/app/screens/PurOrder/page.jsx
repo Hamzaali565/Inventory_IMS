@@ -27,6 +27,10 @@ const PurcahseOrder = () => {
       qty: 0,
       charges: 0,
       amount: 0,
+      p_size_status: false,
+      p_size_qty: 0,
+      item_unit: "",
+      unit_id: 0,
     },
   ]);
 
@@ -103,11 +107,15 @@ const PurcahseOrder = () => {
           {
             item_name: "",
             item_id: 0,
+            item_unit: "",
+            unit_id: 0,
             qty: 0,
             charges: 0,
             amount: 0,
             po_no: po_detail[0]?.po_no,
             grn_status: 0,
+            p_size_status: false,
+            p_size_qty: 0,
           },
         ]);
         return;
@@ -125,9 +133,13 @@ const PurcahseOrder = () => {
         {
           item_name: "",
           item_id: 0,
+          item_unit: "",
+          unit_id: 0,
           qty: 0,
           charges: 0,
           amount: 0,
+          p_size_status: false,
+          p_size_qty: 0,
         },
       ]);
       return;
@@ -158,8 +170,12 @@ const PurcahseOrder = () => {
           if (key === "item_name") {
             return {
               ...item,
-              item_name: value.name,
-              item_id: value.code,
+              item_name: value?.name,
+              item_id: value?.code,
+              p_size_status: value?.p_size_status,
+              p_size_qty: value?.p_size_qty,
+              item_unit: value?.item_unit,
+              unit_id: value?.unit_id,
             };
           }
         }
@@ -183,6 +199,10 @@ const PurcahseOrder = () => {
             ...item,
             item_name: value.name,
             item_id: value.code,
+            p_size_status: value?.p_size_status,
+            p_size_qty: value?.p_size_qty,
+            item_unit: value?.item_unit,
+            unit_id: value?.unit_id,
           };
         }
       }
@@ -415,7 +435,11 @@ const PurcahseOrder = () => {
                   placeholder={"item Name"}
                   disabled={true}
                   mainStyle={"w-[100%] mt-0"}
-                  inpStyle={"p-1"}
+                  inpStyle={`${
+                    item?.p_size_status === 1
+                      ? "text-green-500 font-bold"
+                      : "p-1"
+                  }`}
                   value={item?.item_name}
                 />
               </p>
@@ -486,7 +510,11 @@ const PurcahseOrder = () => {
                   placeholder={"item Name"}
                   disabled={true}
                   mainStyle={"w-[100%] mt-0"}
-                  inpStyle={"p-1"}
+                  inpStyle={`${
+                    item?.p_size_status === 1
+                      ? "text-green-500 font-bold"
+                      : "p-1"
+                  }`}
                   value={item?.item_name}
                 />
               </p>
