@@ -46,6 +46,9 @@ const Modal = ({
       } else if (headerName === "Suppliers Name") {
         getPO();
         return;
+      } else if (headerName === "Supliers Name") {
+        get_po_incompleted();
+        return;
       }
       console.log("effected");
     }
@@ -198,6 +201,29 @@ const Modal = ({
       console.log("error", error);
     }
   };
+  const get_po_incompleted = async () => {
+    try {
+      const response = await fetch(`${url}/purchase_order_incompleted`, {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      const category = await response.json();
+      const structuredData = category.data.data.map((items) => ({
+        ...items,
+        code: items.po_no,
+        name: items.supplier_name,
+        status: moment(items.c_date).format("DD/MM/YYYY"),
+      }));
+
+      setData(structuredData);
+      setCopyData(structuredData);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
 
   const filterNames = (input) => {
     const searchTerm = input.toLowerCase();
@@ -226,11 +252,15 @@ const Modal = ({
 
   const sendToParent = (item) => {
     onClick(item);
-    onOpenChange(false); // Close the modal when data is sent
+    onOpenChange(false);
+    setData([]);
+    setCopyData([]);
   };
 
   const closeModal = () => {
     onOpenChange(false);
+    setData([]);
+    setCopyData([]);
   };
 
   return (
