@@ -18,27 +18,27 @@ const GRN = () => {
   const [bill_no, setBillNo] = useState("");
   const [remarks, setRemarks] = useState("");
   const [po_no, setPoNo] = useState("");
-  const [data, setData] = useState([
-    {
-      item_id: 0,
-      item_name: "",
-      unit_id: 0,
-      item_unit: "",
-      t_qty: 0,
-      r_qty: 0,
-      p_qty: 0,
-      charges: 0,
-      amount: 0,
-      p_size_status: false,
-      p_size_qty: 0,
-      po_no: 0,
-      batch_no: "",
-      batch_qty: 0,
-      p_size_stock: 0,
-    },
-  ]);
+  const [data, setData] = useState([]);
   const [details, setDetails] = useState([]);
   const url = useSelector((state) => state.main.url);
+
+  //   {
+  //     item_id: 0, // done
+  //     item_name: "", // done
+  //     unit_id: 0, // done
+  //     item_unit: "", // done
+  //     t_qty: 0, // done
+  //     r_qty: 0, // done
+  //     p_qty: 0, // done
+  //     charges: 0, // done
+  //     amount: 0, // done
+  //     p_size_status: false, // done
+  //     p_size_qty: 0,  // done
+  //     p_size_stock: 0, // batchqty i.e recieved qty
+  //     po_no: 0, // done
+  //     batch_no: "", // hum likhengy
+  //     batch_qty: 0, // recieved_qty
+  //   },
 
   const handleOpenLocaion = (open) => {
     setOpenLocation(open);
@@ -70,6 +70,12 @@ const GRN = () => {
         throw new Error(response.statusText);
       }
       let dataRes = (await response.json()).data.data;
+      dataRes = dataRes.map((items) => ({
+        ...items,
+        t_qty: items?.qty,
+        r_qty: items?.r_qty || 0,
+        p_qty: items?.qty - items?.r_qty || 0,
+      }));
       console.log("data", dataRes);
     } catch (error) {
       console.log(error);
