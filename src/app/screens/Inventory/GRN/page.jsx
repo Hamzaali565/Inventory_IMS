@@ -17,10 +17,17 @@ const GRN = () => {
   const [grn_date, setGrnDate] = useState("");
   const [bill_no, setBillNo] = useState("");
   const [remarks, setRemarks] = useState("");
-  const [po_no, setPoNo] = useState("");
   const [data, setData] = useState([]);
-  const [details, setDetails] = useState([]);
   const url = useSelector((state) => state.main.url);
+
+  const reset = () => {
+    setLocation(null);
+    setSupplier(null);
+    setGrnDate("");
+    setBillNo("");
+    setRemarks("");
+    setData([]);
+  };
 
   //   {
   //     item_id: 0, // done
@@ -34,10 +41,10 @@ const GRN = () => {
   //     amount: 0, // done
   //     p_size_status: false, // done
   //     p_size_qty: 0,  // done
-  //     p_size_stock: 0, // batchqty i.e recieved qty
+  //     p_size_stock: 0,
   //     po_no: 0, // done
-  //     batch_no: "", // hum likhengy
-  //     batch_qty: 0, // recieved_qty
+  //     batch_no: "",
+  //     batch_qty: 0,
   //   },
 
   const handleOpenLocaion = (open) => {
@@ -75,8 +82,95 @@ const GRN = () => {
         t_qty: items?.qty,
         r_qty: items?.r_qty || 0,
         p_qty: items?.qty - items?.r_qty || 0,
+        amount: 0,
+        charges: 0,
       }));
       console.log("data", dataRes);
+      setData(dataRes);
+      console.log(dataRes);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const removeRow = (indexValue) => {
+    if (data.length === 1) {
+      return;
+    }
+    const filterRow = data.filter((_, index) => index !== indexValue);
+    setData(filterRow);
+  };
+
+  const handleInputs = (value, key, valIndex) => {
+    try {
+      const updateData = data.map((items, index) => {
+        if (index === valIndex) {
+          if (key === "r_qty") {
+            if (value > items?.t_qty || value < 0) {
+              throw new Error("hmmm !!!");
+            } else {
+              return {
+                ...items,
+                [key]: +value,
+                amount: +value * items?.charges,
+                p_qty: items?.t_qty - +value,
+                p_size_stock:
+                  items?.p_size_qty === null
+                    ? +value
+                    : +value * items?.p_size_qty,
+                batch_qty: +value,
+                p_size_qty: items?.p_size_qty === null ? 0 : items?.p_size_qty,
+              };
+            }
+          } else if (key === "charges") {
+            if (value < 0) {
+              throw new Error("hmmm !!!");
+            } else {
+              return {
+                ...items,
+                [key]: +value,
+                amount: +value * items?.r_qty,
+              };
+            }
+          }
+          return { ...items, [key]: value };
+        }
+        return items;
+      });
+      console.log(updateData);
+      setData(updateData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const validation_check = () => {
+    try {
+      if (!data.length) throw new Error("Please Select PO !!!");
+      if (!supplier) throw new Error("Please Select Supplier !!!");
+      if (!location) throw new Error("Please Select Location !!!");
+      if (!grn_date) throw new Error("Please Select GRN Date !!!");
+      data.map((items, index) => {
+        const { r_qty, charges, batch_no } = items;
+        if (r_qty <= 0 || charges <= 0 || !batch_no) {
+          throw new Error(`Some data missing at line no ${index + 1}`);
+        }
+      });
+      console.log({
+        data: data,
+        location: location,
+        supplier: supplier,
+        grn_date: grn_date,
+      });
+      submitHandler();
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const submitHandler = async () => {
+    try {
+      const response = await fetch(`${url}/`);
     } catch (error) {
       console.log(error);
     }
@@ -87,36 +181,59 @@ const GRN = () => {
       <Card>
         <Heading text={"Good Receipt Note"} className={"mt-2 text-2xl p-2"} />
       </Card>
-      <Card className={"grid grid-cols-3 mt-2 p-2"}>
-        <Button
-          text={"Select PO"}
-          classNameText={"w-40"}
-          onClick={() => setOpenPO(true)}
-        />
-        <Button
-          text={"Select Supplier"}
-          classNameText={"w-40"}
-          onClick={() => setOpenSupplier(true)}
-        />
-        <Button
-          text={"Select Location"}
-          classNameText={"w-40"}
-          onClick={() => setOpenLocation(true)}
-        />
-        <LabInput placeholder={"PO Number"} disabled={true} />
-        <LabInput
-          placeholder={"Supplier Name"}
-          disabled={true}
-          value={supplier?.name || ""}
-        />
-        <LabInput
-          placeholder={"Location"}
-          disabled={true}
-          value={location?.name || ""}
-        />
-        <LabInput placeholder={"Bill No"} />
-        <LabInput placeholder={"Bill Date"} type={"Date"} />
-        <LabInput placeholder={"Remarks"} />
+      <Card>
+        <div className={"grid grid-cols-3 mt-2 p-2"}>
+          <Button
+            text={"Select PO"}
+            classNameText={"w-40"}
+            onClick={() => setOpenPO(true)}
+          />
+          <Button
+            text={"Select Supplier"}
+            classNameText={"w-40"}
+            onClick={() => setOpenSupplier(true)}
+          />
+          <Button
+            text={"Select Location"}
+            classNameText={"w-40"}
+            onClick={() => setOpenLocation(true)}
+          />
+          <LabInput
+            placeholder={"PO Number"}
+            disabled={true}
+            value={data[0]?.po_no || ""}
+          />
+          <LabInput
+            placeholder={"Supplier Name"}
+            disabled={true}
+            value={supplier?.name || ""}
+          />
+          <LabInput
+            placeholder={"Location"}
+            disabled={true}
+            value={location?.name || ""}
+          />
+          <LabInput
+            placeholder={"Bill No"}
+            onChange={(e) => setBillNo(e.target.value)}
+            value={bill_no}
+          />
+          <LabInput
+            placeholder={"Bill Date"}
+            value={grn_date}
+            type={"Date"}
+            onChange={(e) => setGrnDate(e.target.value)}
+          />
+          <LabInput
+            placeholder={"Remarks"}
+            onChange={(e) => setRemarks(e.target.value)}
+            value={remarks}
+          />
+        </div>
+        <div className="flex p-2 justify-center mt-3 space-x-4">
+          <Button text={"Save"} onClick={validation_check} />
+          <Button text={"Reset"} onClick={reset} />
+        </div>
       </Card>
 
       <Card className={"mt-3"}>
@@ -129,60 +246,76 @@ const GRN = () => {
           </p>
           <p className="w-[10%] border-2 text-center border-r-0">Pending Qty</p>
           <p className="w-[10%] border-2 text-center border-r-0">Recieve Qty</p>
-          <p className="w-[10%] border-2 text-center border-r-0">Amount</p>
           <p className="w-[10%] border-2 text-center border-r-0">Charges</p>
+          <p className="w-[10%] border-2 text-center border-r-0">Amount</p>
           <p className="w-[10%] border-2 text-center border-r-0">Batch No</p>
-          <p className="w-[5%] border-2 text-center border-r-0">Add</p>
-          <p className="w-[5%] border-2 text-center ">Rem</p>
+          <p className="w-[10%] border-2 text-center ">Rem</p>
         </div>
+        {data.length !== 0 &&
+          data?.map((items, index) => (
+            <div className="flex justify-between items-center" key={index}>
+              <p className="w-[5%] border-2 text-center text-sm border-r-0 p-1">
+                {items?.po_no}
+              </p>
+              <p
+                className={`${
+                  items?.p_size_status === 1 ? "text-green-600 font-bold" : ""
+                } w-[15%] border-2 text-center text-sm border-r-0 p-1`}
+              >
+                {items?.item_name}
+              </p>
+              <p className="w-[10%] border-2 text-center text-sm border-r-0 p-1">
+                {items?.item_unit}
+              </p>
+              <p className="w-[10%] border-2 text-center text-sm border-r-0 p-1">
+                {items?.t_qty}
+              </p>
+              <p className="w-[10%] border-2 text-center text-sm border-r-0 p-1">
+                {items?.t_qty - items?.r_qty}
+              </p>
+              <p className="w-[10%] border-2 text-center text-sm border-r-0 p-1">
+                <input
+                  type="number"
+                  className="w-20 rounded-2xl pl-2 bg-gray-500 placeholder:text-[11px] placeholder:pl-1"
+                  placeholder="Receive Qty"
+                  onChange={(e) => handleInputs(e.target.value, "r_qty", index)}
+                  value={items?.r_qty}
+                />
+              </p>
+              <p className="w-[10%] border-2 text-center text-sm border-r-0 p-1">
+                <input
+                  type="number"
+                  className="w-20 rounded-2xl pl-2 bg-gray-500 placeholder:text-[11px] placeholder:pl-1"
+                  placeholder="Charges"
+                  onChange={(e) =>
+                    handleInputs(e.target.value, "charges", index)
+                  }
+                  value={items?.charges}
+                />
+              </p>
+              <p className="w-[10%] border-2 text-center text-sm border-r-0 p-1">
+                {items?.amount}
+              </p>
+              <p className="w-[10%] border-2 text-center text-sm border-r-0 p-1">
+                <input
+                  type="text"
+                  className="w-20 rounded-2xl pl-2 bg-gray-500 placeholder:text-[11px] placeholder:pl-1"
+                  placeholder="Batch No"
+                  onChange={(e) =>
+                    handleInputs(e.target.value, "batch_no", index)
+                  }
+                  value={items?.batch_no}
+                />
+              </p>
 
-        <div className="flex justify-between items-center">
-          <p className="w-[5%] border-2 text-center text-sm border-r-0 p-1">
-            435
-          </p>
-          <p className="w-[15%] border-2 text-center text-sm border-r-0 p-1">
-            BONA PAPA PAMPER
-          </p>
-          <p className="w-[10%] border-2 text-center text-sm border-r-0 p-1">
-            EACH
-          </p>
-          <p className="w-[10%] border-2 text-center text-sm border-r-0 p-1">
-            35
-          </p>
-          <p className="w-[10%] border-2 text-center text-sm border-r-0 p-1">
-            35
-          </p>
-          <p className="w-[10%] border-2 text-center text-sm border-r-0 p-1">
-            <input
-              type="number"
-              className="w-20 rounded-2xl pl-2 bg-gray-500 placeholder:text-[11px] placeholder:pl-1"
-              placeholder="Receive Qty"
-            />
-          </p>
-          <p className="w-[10%] border-2 text-center text-sm border-r-0 p-1">
-            <input
-              type="number"
-              className="w-20 rounded-2xl pl-2 bg-gray-500 placeholder:text-[11px] placeholder:pl-1"
-              placeholder="Amount"
-            />
-          </p>
-          <p className="w-[10%] border-2 text-center text-sm border-r-0 p-1">
-            Charges
-          </p>
-          <p className="w-[10%] border-2 text-center text-sm border-r-0 p-1">
-            <input
-              type="text"
-              className="w-20 rounded-2xl pl-2 bg-gray-500 placeholder:text-[11px] placeholder:pl-1"
-              placeholder="Batch No"
-            />
-          </p>
-          <p className="w-[5%] border-2 text-center text-sm border-r-0 p-1 font-bold text-red-600">
-            +
-          </p>
-          <p className="w-[5%] border-2 text-center text-sm p-1 font-bold text-red-600">
-            ---
-          </p>
-        </div>
+              <p
+                className="w-[10%] border-2 text-center text-sm p-1 font-bold text-red-600 cursor-pointer"
+                onClick={() => removeRow(index)}
+              >
+                ---
+              </p>
+            </div>
+          ))}
       </Card>
 
       <Modal
