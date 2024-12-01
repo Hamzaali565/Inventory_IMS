@@ -84,6 +84,7 @@ const GRN = () => {
         p_qty: items?.qty - items?.r_qty || 0,
         amount: 0,
         charges: 0,
+        p_size_qty: items?.p_size_qty === null ? 0 : items?.p_size_qty,
       }));
       console.log("data", dataRes);
       setData(dataRes);
@@ -115,9 +116,7 @@ const GRN = () => {
                 amount: +value * items?.charges,
                 p_qty: items?.t_qty - +value,
                 p_size_stock:
-                  items?.p_size_qty === null
-                    ? +value
-                    : +value * items?.p_size_qty,
+                  items?.p_size_qty === 0 ? +value : +value * items?.p_size_qty,
                 batch_qty: +value,
                 p_size_qty: items?.p_size_qty === null ? 0 : items?.p_size_qty,
               };
@@ -170,7 +169,30 @@ const GRN = () => {
 
   const submitHandler = async () => {
     try {
-      const response = await fetch(`${url}/`);
+      const response = await fetch(`${url}/grn`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          grn_date,
+          bill_no,
+          remarks,
+          po_no: data[0]?.po_no,
+          location: location?.name,
+          supplier_name: supplier?.name,
+          supplier_id: supplier?.code,
+          location_id: location?.code,
+          data,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      let dataRes = await response.json();
+      console.log(dataRes);
+      reset(alert(`GRN Created Successfully ⚡⚡`));
     } catch (error) {
       console.log(error);
     }
