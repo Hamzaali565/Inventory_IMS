@@ -23,6 +23,9 @@ const Stock = () => {
       location: location ? location?.name : "",
       location_id: location ? location?.code : "",
       expiry: "",
+      p_size_status: false,
+      p_size_qty: 0,
+      p_size_stock: 0,
     },
   ]);
 
@@ -36,9 +39,12 @@ const Stock = () => {
         batch_no: "",
         batch_qty: 0,
         input_type: "Physical Stock Taking",
-        location: location ? location?.name : "",
-        location_id: location ? location?.code : "",
+        location: "",
+        location_id: "",
         expiry: "",
+        p_size_status: false,
+        p_size_qty: 0,
+        p_size_stock: 0,
       },
     ]);
   };
@@ -53,8 +59,6 @@ const Stock = () => {
     setOpenLocation(open);
   };
   const openModal = (index) => {
-    console.log(index);
-
     setIsItemOpen(true);
     setModalIndex(index);
   };
@@ -84,6 +88,12 @@ const Stock = () => {
   };
 
   const updateForItem = (value, key) => {
+    const isDuplicate = data.some((item) => value?.item_id === item?.item_id);
+    if (isDuplicate) {
+      alert(`Duplicate items not allowed !!!`);
+      return;
+    }
+
     let updatedData = data.map((item, itemIndex) => {
       if (itemIndex === modalIndex) {
         if (key === "item_name") {
@@ -92,6 +102,8 @@ const Stock = () => {
             item_name: value.name,
             item_id: value.code,
             batch_no: value?.name,
+            p_size_status: value?.p_size_status,
+            p_size_qty: value?.p_size_qty,
           };
         }
       }
@@ -104,11 +116,19 @@ const Stock = () => {
   const updateValues = (value, index, key) => {
     const updateInputs = data.map((items, itemIndex) => {
       if (itemIndex === index) {
+        if (key === "batch_qty") {
+          return {
+            ...items,
+            batch_qty: value,
+            p_size_stock: value * items?.p_size_qty,
+          };
+        }
         return { ...items, [key]: value };
       }
       return items;
     });
     setData(updateInputs);
+    console.log(updateInputs);
   };
 
   const updateLocation = async (value) => {
@@ -158,9 +178,13 @@ const Stock = () => {
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
 
         // Convert the worksheet to JSON
-        const json = XLSX.utils.sheet_to_json(worksheet);
+        let json = XLSX.utils.sheet_to_json(worksheet);
+        json = json.map((items) => ({
+          ...items,
+          p_size_stock:
+            items?.batch_qty * items?.p_size_qty || items?.batch_qty,
+        }));
         console.log(json);
-
         setData(json);
       };
       reader.readAsArrayBuffer(file);
@@ -193,6 +217,9 @@ const Stock = () => {
         categort_id: items?.category_id,
         unit_name: items?.item_unit,
         unit_id: items?.unit_id,
+        p_size_status: items?.p_size_status,
+        p_size_qty: items?.p_size_qty,
+        scan_code: items?.scan_code,
       }));
       downloadExcelFile(formattedData);
     } catch (error) {
@@ -207,6 +234,10 @@ const Stock = () => {
         items.batch_qty !== 0
       );
     });
+    if (!location) {
+      alert(`Please Select Location !!!`);
+      return;
+    }
     submitData(Duplicate);
   };
 
@@ -226,6 +257,7 @@ const Stock = () => {
         throw new Error(response.statusText);
       }
       console.log(await response.json());
+      alert(`Stock Uploaded Successfully 😎😎 !!!`);
       reset();
     } catch (error) {
       console.log(error);
@@ -264,11 +296,13 @@ const Stock = () => {
           />
         )}
         <div className="flex justify-center space-x-3">
-          <Button
-            onClick={removeDuplicates}
-            text={"Save"}
-            classNameText={"w-48"}
-          />
+          {data[0]?.item_name !== "" && location !== null && (
+            <Button
+              onClick={removeDuplicates}
+              text={"Save"}
+              classNameText={"w-48"}
+            />
+          )}
 
           <Button
             onClick={() => reset()}
@@ -297,7 +331,11 @@ const Stock = () => {
                   placeholder={"item Name"}
                   disabled={true}
                   mainStyle={"w-[100%] mt-0"}
-                  inpStyle={"p-1"}
+                  inpStyle={`${
+                    item?.p_size_status === 1
+                      ? "text-green-500 font-bold"
+                      : "p-1"
+                  }`}
                   value={item?.item_name}
                 />
               </p>

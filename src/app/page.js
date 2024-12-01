@@ -20,9 +20,9 @@ export default function Home() {
         {/* <Unit /> */}
         {/* <Category /> */}
         {/* <Location /> */}
-        {/* <Stock /> */}
+        <Stock />
         {/* <Supplier /> */}
-        <PurcahseOrder />
+        {/* <PurcahseOrder /> */}
       </div>
     </Provider>
   );

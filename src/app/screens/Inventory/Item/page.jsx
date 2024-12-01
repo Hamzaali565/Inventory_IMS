@@ -20,6 +20,11 @@ const Inventory = () => {
     p_price: 0,
     s_price: 0,
     c_user: "Hamza",
+    p_size_status: false,
+    p_size_qty: 0,
+    p_price_per_size: 0,
+    s_price_per_size: 0,
+    scan_code: "",
   });
 
   const url = useSelector((state) => state.main.url);
@@ -43,9 +48,34 @@ const Inventory = () => {
       }));
       return;
     }
+    if (iKey === "p_size_status") {
+      if (itemDetail?.s_price === 0 || itemDetail?.p_price === 0) {
+        alert("Please enter purchase price and sale price first !!!");
+        return;
+      } else {
+        setItemDetail((previtems) => ({
+          ...previtems,
+          p_size_status: value,
+          p_size_qty: 0,
+          p_price_per_size: 0,
+          s_price_per_size: 0,
+        }));
+        return;
+      }
+    }
+
+    if (iKey === "p_size_qty") {
+      setItemDetail((prevItem) => ({
+        ...prevItem,
+        p_size_qty: value,
+        p_price_per_size: prevItem?.p_price / value,
+        s_price_per_size: prevItem?.s_price / value,
+      }));
+    }
+
     setItemDetail((prevValue) => ({
       ...prevValue,
-      [iKey]: typeof value === "string" ? value.toUpperCase() : value,
+      [iKey]: typeof value === "string" ? value.toUpperCase() : +value,
     }));
     console.log(itemDetail);
   };
@@ -55,13 +85,18 @@ const Inventory = () => {
 
     setItemDetail((prevValue) => ({
       ...prevValue,
-      item_name: value.name,
-      item_unit: value.item_unit,
-      unit_id: value.unit_id,
-      category: value.category,
-      category_id: value.category_id,
-      p_price: value.p_price,
-      s_price: value.s_price,
+      item_name: value?.name,
+      item_unit: value?.item_unit,
+      unit_id: value?.unit_id,
+      category: value?.category,
+      category_id: value?.category_id,
+      p_price: value?.p_price,
+      s_price: value?.s_price,
+      p_size_status: value?.p_size_status,
+      p_size_qty: value?.p_size_qty,
+      p_price_per_size: value?.p_price_per_size,
+      s_price_per_size: value?.s_price_per_size,
+      scan_code: value?.scan_code,
     }));
     setitem_id(value.code);
   };
@@ -132,6 +167,11 @@ const Inventory = () => {
       p_price: 0,
       s_price: 0,
       c_user: "Hamza",
+      p_size_status: false,
+      p_size_qty: 0,
+      p_price_per_size: 0,
+      s_price_per_size: 0,
+      scan_code: 0,
     });
     setitem_id(0);
   };
@@ -143,50 +183,92 @@ const Inventory = () => {
       </Card>
 
       <Card className="p-2 m-2 lg:mt-6">
-        <LabInput
-          label="Items Name"
-          onChange={(e) => updateItemDetails(e.target.value, "item_name")}
-          placeholder="Enter item name"
-          type="text"
-          value={itemDetail?.item_name}
-        />
-        <LabInput
-          label="Bar Code"
-          onChange={(e) => console.log(e.target.value)}
-          placeholder="Scan bar code"
-          type="text"
-          disabled
-        />
-        <LabInput
-          label="Purchase Price"
-          onChange={(e) => updateItemDetails(e.target.value, "p_price")}
-          placeholder="Enter purchase price"
-          type="number"
-          value={itemDetail?.p_price}
-        />
-        <LabInput
-          label="Sale Price"
-          onChange={(e) => updateItemDetails(e.target.value, "s_price")}
-          placeholder="Enter sale price"
-          type="number"
-          value={itemDetail?.s_price}
-        />
-        <LabInput
-          label="Unit"
-          onChange={(e) => console.log(e.target.value)}
-          placeholder="Select unit"
-          type="text"
-          disabled={true}
-          value={itemDetail?.item_unit}
-        />
-        <LabInput
-          label="Category"
-          onChange={(e) => console.log(e.target.value)}
-          placeholder="Select Category"
-          type="text"
-          disabled={true}
-          value={itemDetail?.category}
-        />
+        <div className="grid grid-cols-3">
+          <LabInput
+            label="Items Name"
+            onChange={(e) => updateItemDetails(e.target.value, "item_name")}
+            placeholder="Enter item name"
+            type="text"
+            value={itemDetail?.item_name}
+          />
+          <LabInput
+            label="Bar Code"
+            onChange={(e) => updateItemDetails(e.target.value, "scan_code")}
+            placeholder="Scan bar code"
+            type="text"
+            value={itemDetail?.scan_code}
+          />
+          <LabInput
+            label="Purchase Price"
+            onChange={(e) => updateItemDetails(+e.target.value, "p_price")}
+            placeholder="Enter purchase price"
+            type="number"
+            value={itemDetail?.p_price}
+            disabled={itemDetail?.p_size_status}
+          />
+          <LabInput
+            label="Sale Price"
+            onChange={(e) => updateItemDetails(+e.target.value, "s_price")}
+            placeholder="Enter sale price"
+            type="number"
+            value={itemDetail?.s_price}
+            disabled={itemDetail?.p_size_status}
+          />
+          <LabInput
+            label="Unit"
+            onChange={(e) => console.log(e.target.value)}
+            placeholder="Select unit"
+            type="text"
+            disabled={true}
+            value={itemDetail?.item_unit}
+          />
+          <LabInput
+            label="Category"
+            onChange={(e) => console.log(e.target.value)}
+            placeholder="Select Category"
+            type="text"
+            disabled={true}
+            value={itemDetail?.category}
+          />
+          <LabInput
+            label="Allow Pack Size"
+            onChange={(e) =>
+              updateItemDetails(e.target.checked, "p_size_status")
+            }
+            type="checkbox"
+            checked={itemDetail?.p_size_status}
+          />
+          {itemDetail?.p_size_status === true || (
+            <LabInput
+              label="Pack Size Quantity"
+              onChange={(e) => updateItemDetails(+e.target.value, "p_size_qty")}
+              placeholder="Pack Size Quantity"
+              type="number"
+              value={itemDetail?.p_size_qty}
+            />
+          )}
+          <LabInput
+            label="Purchase Price Per Item"
+            onChange={(e) =>
+              updateItemDetails(e.target.value, "p_price_per_size")
+            }
+            placeholder="Purchase Price Per Item"
+            type="number"
+            disabled={true}
+            value={itemDetail?.p_price_per_size}
+          />
+          <LabInput
+            label="Sale Price Per Item"
+            onChange={(e) =>
+              updateItemDetails(e.target.value, "s_price_per_size")
+            }
+            placeholder="Sale Price Per Item"
+            type="number"
+            disabled={true}
+            value={itemDetail?.s_price_per_size}
+          />
+        </div>
+
         <Button
           onClick={() => setIsModalOpen(true)}
           text={"Select Unit"}
