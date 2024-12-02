@@ -17,6 +17,7 @@ const GRN = () => {
   const [grn_date, setGrnDate] = useState("");
   const [bill_no, setBillNo] = useState("");
   const [remarks, setRemarks] = useState("");
+  const [message, setMessage] = useState("");
   const [data, setData] = useState([]);
   const url = useSelector((state) => state.main.url);
 
@@ -26,6 +27,7 @@ const GRN = () => {
     setGrnDate("");
     setBillNo("");
     setRemarks("");
+    setMessage("");
     setData([]);
   };
 
@@ -76,7 +78,25 @@ const GRN = () => {
       if (!response.ok) {
         throw new Error(response.statusText);
       }
-      let dataRes = (await response.json()).data.data;
+      let mainRes = await response.json();
+      let dataRes = mainRes.data.data;
+      let messageRes = mainRes.message;
+      console.log("message", messageRes);
+      console.log("data", dataRes);
+      if (messageRes === "grn_transaction_check") {
+        setMessage(messageRes);
+        dataRes = dataRes.map((items) => ({
+          ...items,
+          amount: 0,
+          charges: 0,
+          batch_no: 0,
+          r_qty: 0,
+        }));
+        console.log("formatedRes", dataRes);
+
+        setData(dataRes);
+        return;
+      }
       dataRes = dataRes.map((items) => ({
         ...items,
         t_qty: items?.qty,
@@ -86,7 +106,6 @@ const GRN = () => {
         charges: 0,
         p_size_qty: items?.p_size_qty === null ? 0 : items?.p_size_qty,
       }));
-      console.log("data", dataRes);
       setData(dataRes);
       console.log(dataRes);
     } catch (error) {
@@ -104,7 +123,49 @@ const GRN = () => {
 
   const handleInputs = (value, key, valIndex) => {
     try {
-      const updateData = data.map((items, index) => {
+      let updateData;
+      if (message === "grn_transaction_check") {
+        updateData = data.map((items, index) => {
+          if (index === valIndex) {
+            if (key === "r_qty") {
+              console.log(message);
+              if (value > items?.p_qty || value < 0) {
+                throw new Error("hmmm !!!");
+              } else {
+                return {
+                  ...items,
+                  [key]: +value,
+                  amount: +value * items?.charges,
+                  p_size_stock:
+                    items?.p_size_qty === 0
+                      ? +value
+                      : +value * items?.p_size_qty,
+                  batch_qty: +value,
+                  p_size_qty:
+                    items?.p_size_qty === null ? 0 : items?.p_size_qty,
+                };
+              }
+            } else if (key === "charges") {
+              if (value < 0) {
+                throw new Error("hmmm !!!");
+              } else {
+                return {
+                  ...items,
+                  [key]: +value,
+                  amount: +value * items?.r_qty,
+                };
+              }
+            }
+            return { ...items, [key]: value };
+          }
+          return items;
+        });
+        console.log(updateData);
+        setData(updateData);
+        return;
+      }
+      ///
+      updateData = data.map((items, index) => {
         if (index === valIndex) {
           if (key === "r_qty") {
             if (value > items?.t_qty || value < 0) {
@@ -184,7 +245,7 @@ const GRN = () => {
           supplier_name: supplier?.name,
           supplier_id: supplier?.code,
           location_id: location?.code,
-          data,
+          grnDetails: data,
         }),
       });
       if (!response.ok) {
@@ -293,7 +354,7 @@ const GRN = () => {
                 {items?.t_qty}
               </p>
               <p className="w-[10%] border-2 text-center text-sm border-r-0 p-1">
-                {items?.t_qty - items?.r_qty}
+                {items?.p_qty}
               </p>
               <p className="w-[10%] border-2 text-center text-sm border-r-0 p-1">
                 <input
