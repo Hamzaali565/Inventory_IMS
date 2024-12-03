@@ -131,8 +131,10 @@ const Inventory = () => {
         throw new Error(response.statusText);
       }
       console.log(await response.json());
+      alert(`Item Created Successfully !!!`);
       reset();
     } catch (error) {
+      alert(`Item Created Failed !!!`);
       console.error(error);
     }
   };
@@ -151,8 +153,10 @@ const Inventory = () => {
         throw new Error(response.statusText);
       }
       console.log(await response.json());
+      alert(`Item updated successfully !!!`);
       reset();
     } catch (error) {
+      alert(`Item updation failed !!!`);
       console.log("error of updateItem", error);
     }
   };
