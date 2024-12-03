@@ -15,6 +15,7 @@ const LabInput = ({
   accept,
   checked,
   onKeyDown,
+  ref,
 }) => {
   return (
     <div className=" flex justify-center">
@@ -35,6 +36,7 @@ const LabInput = ({
           checked={checked}
           value={value}
           onKeyDown={onKeyDown}
+          ref={ref}
         />
       </div>
     </div>
