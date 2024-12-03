@@ -16,7 +16,7 @@ const PurcahseOrder = () => {
   const [supplier, setSupplier] = useState(null);
   const [po_date, setPoDate] = useState("");
   const [isItemOpen, setIsItemOpen] = useState(false);
-  const [grnTransaction, setGrnTransaction] = useState(false);
+  const [grnTransaction, setGrnTransaction] = useState(0);
   const [modalIndex, setModalIndex] = useState(0);
   const [po_detail, setPODetail] = useState([]);
   const [po_master, setPOMaster] = useState([]);
@@ -297,7 +297,7 @@ const PurcahseOrder = () => {
       },
     ]);
     setPODetail([]);
-    setGrnTransaction(false);
+    setGrnTransaction(0);
     setPOMaster([]);
   };
 
@@ -406,10 +406,12 @@ const PurcahseOrder = () => {
         </div>
         <div className="flex justify-center space-x-3 mt-4">
           {/* buttons */}
-          <Button
-            text={po_detail.length === 0 ? "Save" : "Update"}
-            onClick={validation}
-          />
+          {grnTransaction === 0 && (
+            <Button
+              text={po_detail.length === 0 ? "Save" : "Update"}
+              onClick={validation}
+            />
+          )}
           <Button text={"Reset"} onClick={reset} />
         </div>
       </Card>
