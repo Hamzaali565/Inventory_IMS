@@ -256,6 +256,7 @@ const GRN = () => {
       reset(alert(`GRN Created Successfully ⚡⚡`));
     } catch (error) {
       console.log(error);
+      alert(`GRN creation failed contact to Muhammad Hamza !!!`);
     }
   };
 

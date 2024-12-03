@@ -326,6 +326,7 @@ const PurcahseOrder = () => {
       alert(`Purchase order created 🙌`);
     } catch (error) {
       console.log("error", error);
+      alert(`PO creation failed contact to Muhammad Hamza `);
     }
   };
 
@@ -374,6 +375,9 @@ const PurcahseOrder = () => {
       reset();
     } catch (error) {
       console.log("error ,,", error);
+      alert(
+        `Updating purchase order failed kindly contact to Muhammad Hamza !!!`
+      );
     }
   };
   return (
