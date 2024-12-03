@@ -11,6 +11,7 @@ import Stock from "./screens/Inventory/Stock/page";
 import Supplier from "./screens/Supplier/page";
 import PurcahseOrder from "./screens/PurOrder/page";
 import GRN from "./screens/Inventory/GRN/page";
+import Sales from "./screens/Sales/SaleOrder/page";
 export default function Home() {
   return (
     <Provider store={store}>
@@ -24,7 +25,8 @@ export default function Home() {
         {/* <Stock /> */}
         {/* <Supplier /> */}
         {/* <PurcahseOrder /> */}
-        <GRN />
+        {/* <GRN /> */}
+        <Sales />
       </div>
     </Provider>
   );
