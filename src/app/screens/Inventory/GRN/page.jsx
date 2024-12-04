@@ -210,25 +210,38 @@ const GRN = () => {
       if (!supplier) throw new Error("Please Select Supplier !!!");
       if (!location) throw new Error("Please Select Location !!!");
       if (!grn_date) throw new Error("Please Select GRN Date !!!");
-      data.map((items, index) => {
+
+      let alphaData = data.filter((item) => item?.r_qty !== 0);
+      if (alphaData.length === 0) {
+        throw new Error("Please Insert Detail of Atleast One Items !!!");
+      }
+
+      alphaData.map((items, index) => {
         const { r_qty, charges, batch_no } = items;
-        if (r_qty <= 0 || charges <= 0 || !batch_no) {
-          throw new Error(`Some data missing at line no ${index + 1}`);
+        if (r_qty !== 0) {
+          if (r_qty <= 0 || charges <= 0 || !batch_no) {
+            throw new Error(`Some data missing at line no ${index + 1}`);
+          }
         }
+        return;
       });
-      console.log({
-        data: data,
-        location: location,
-        supplier: supplier,
-        grn_date: grn_date,
-      });
-      submitHandler();
+
+      if (message === "grn_transaction_check") {
+        alphaData = alphaData.map((items) => ({
+          ...items,
+          p_qty: (items?.p_qty || 0) - (items?.r_qty || 0),
+        }));
+
+        submitHandler(alphaData);
+        return;
+      }
+      submitHandler(alphaData);
     } catch (error) {
       alert(error.message);
     }
   };
 
-  const submitHandler = async () => {
+  const submitHandler = async (myData) => {
     try {
       const response = await fetch(`${url}/grn`, {
         method: "POST",
@@ -245,7 +258,7 @@ const GRN = () => {
           supplier_name: supplier?.name,
           supplier_id: supplier?.code,
           location_id: location?.code,
-          grnDetails: data,
+          grnDetails: myData,
         }),
       });
       if (!response.ok) {
@@ -394,7 +407,7 @@ const GRN = () => {
 
               <p
                 className="w-[10%] border-2 text-center text-sm p-1 font-bold text-red-600 cursor-pointer"
-                onClick={() => removeRow(index)}
+                onClick={() => console.log(index)}
               >
                 ---
               </p>
