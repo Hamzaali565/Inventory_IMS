@@ -242,7 +242,7 @@ const Inventory = () => {
             type="checkbox"
             checked={itemDetail?.p_size_status}
           />
-          {itemDetail?.p_size_status === true || (
+          {itemDetail?.p_size_status === true && (
             <LabInput
               label="Pack Size Quantity"
               onChange={(e) => updateItemDetails(+e.target.value, "p_size_qty")}
