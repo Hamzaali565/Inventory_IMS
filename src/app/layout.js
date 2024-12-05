@@ -1,8 +1,11 @@
 "use client"; // This makes the layout component client-side
 import localFont from "next/font/local";
 import "./globals.css";
-import { Provider } from "react-redux";
-import { store } from "@/store/store";
+import { useSelector } from "react-redux";
+import { Login } from "./screens/Auth/page";
+import { Sales } from "./screens/Sales/SaleOrder/page";
+import Header from "./components/Header";
+import { StoreProvider } from "@/store/storeProvider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -18,13 +21,26 @@ const geistMono = localFont({
 
 // Remove the metadata export from this file
 export default function RootLayout({ children }) {
+  const loginData = useSelector((state) => state.main.response);
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Provider store={store}>{children}</Provider>
-      </body>
-    </html>
+    <StoreProvider>
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <div>
+            {/* Show login screen if no login data */}
+            {!loginData ? (
+              <Login /> // Render login component if not logged in
+            ) : (
+              <div>
+                <Header /> {/* Header should be visible if logged in */}
+                <main>{children}</main> {/* Render main content */}
+              </div>
+            )}
+          </div>
+        </body>
+      </html>
+    </StoreProvider>
   );
 }
