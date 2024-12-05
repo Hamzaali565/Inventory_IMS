@@ -10,6 +10,9 @@ const Sales = () => {
   const [data, setData] = useState([]);
   const url = useSelector((state) => state.main.url);
   const [focus, setFocus] = useState(false);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [totalPurchase, setTotalPurchase] = useState(0);
+  const [totalProfit, setTotalProfit] = useState(0);
   // Ref to focus the input
   const inputRef = useRef(null);
   const errorSound = new Audio("/audio/ErrorMessage.mp3");
@@ -22,40 +25,8 @@ const Sales = () => {
 
   useEffect(() => {
     console.log("Data reset or updated:", data);
+    checkTotal();
   }, [data]);
-
-  // const callForItem = async (scan_code) => {
-  //   try {
-  //     console.log("Scan Code:", scan_code);
-  //     let response = await fetch(`${url}/sales?scan_code=${scan_code}`);
-  //     response = (await response.json())?.data?.data;
-  //     console.log(" here with response ", response[0]?.item_id);
-  //     console.log("upData", data);
-
-  //     const isDuplicate = data.some(
-  //       (item) => item.item_id === response[0]?.item_id
-  //     );
-
-  //     console.log("Duplicate", isDuplicate);
-
-  //     response = response.map((items) => ({
-  //       ...items,
-  //       d_qty: 1,
-  //       t_price: 0,
-  //     }));
-  //     setData((prev) => [...prev, ...response]);
-  //     console.log("data:", data);
-  //     // Clear the input after fetching
-  //     setBarCode("");
-  //     if (inputRef.current) {
-  //       inputRef.current.focus();
-  //     }
-  //   } catch (error) {
-  //     console.log("Error:", error);
-  //     setBarCode("");
-  //     errorSound.play();
-  //   }
-  // };
 
   const callForItem = async (scan_code) => {
     try {
@@ -63,6 +34,7 @@ const Sales = () => {
 
       let response = await fetch(`${url}/sales?scan_code=${scan_code}`);
       response = (await response.json())?.data?.data;
+      console.log("response", response);
 
       // Initialize `d_qty` and `t_price`
       const newItems = response.map((item) => ({
@@ -70,8 +42,8 @@ const Sales = () => {
         d_qty: 1,
         t_price:
           item?.p_size_status === 0
-            ? item.s_price * (item?.d_qty ? item?.d_qty + 1 : 1)
-            : item.s_price_per_size * (item?.d_qty ? item?.d_qty + 1 : 1),
+            ? +item.s_price * (+item?.d_qty ? +item?.d_qty + 1 : 1)
+            : +item.s_price_per_size * (+item?.d_qty ? +item?.d_qty + 1 : 1),
       }));
 
       // Check for duplicates
@@ -83,9 +55,13 @@ const Sales = () => {
                 d_qty: item.d_qty + 1,
                 t_price:
                   item?.p_size_status === 0
-                    ? item.s_price * (item?.d_qty ? item?.d_qty + 1 : 1)
-                    : item.s_price_per_size *
-                      (item?.d_qty ? item?.d_qty + 1 : 1),
+                    ? (
+                        +item.s_price * (+item?.d_qty ? +item?.d_qty + 1 : 1)
+                      ).toFixed(2)
+                    : (
+                        +item.s_price_per_size *
+                        (+item?.d_qty ? +item?.d_qty + 1 : 1)
+                      ).toFixed(2),
               }
             : item
         );
@@ -126,27 +102,41 @@ const Sales = () => {
 
   const handleInputs = (value, dataObj, key) => {
     let updated_data = data.map((items) => {
+      console.log("items", items);
       if (items?.item_id === dataObj?.item_id) {
         if (key === "s_price") {
           if (dataObj?.p_size_status === 1) {
             return {
               ...items,
               s_price_per_size: +value,
-              t_price: +value * items?.d_qty,
+              t_price: (+value * +items?.d_qty).toFixed(2),
             };
           } else {
-            return { ...items, [key]: +value, t_price: +value * items?.d_qty };
+            return {
+              ...items,
+              [key]: +value,
+              t_price: (+value * +items?.d_qty).toFixed(2),
+            };
           }
         }
         if (key === "d_qty") {
+          console.log(items?.total_stock);
+
+          if (value > items?.total_stock) {
+            return items;
+          }
           if (dataObj?.p_size_status === 1) {
             return {
               ...items,
               [key]: +value,
-              t_price: +value * items?.s_price_per_size,
+              t_price: (+value * +items?.s_price_per_size).toFixed(2),
             };
           } else {
-            return { ...items, [key]: +value, t_qty: +value * items?.s_price };
+            return {
+              ...items,
+              [key]: +value,
+              t_price: (+value * +items?.s_price).toFixed(2),
+            };
           }
         }
       }
@@ -154,6 +144,35 @@ const Sales = () => {
     });
     console.log("updated_data", updated_data);
     setData(updated_data);
+  };
+
+  const checkTotal = () => {
+    let dataSummary = data.map((items) => ({
+      t_price: +items?.t_price,
+      p_price:
+        items?.p_size_status === 1
+          ? items?.d_qty !== ""
+            ? +items?.p_price_per_size * items?.d_qty
+            : +items?.p_price_per_size
+          : items?.d_qty !== ""
+          ? +items?.p_price * items?.d_qty
+          : +items?.p_price,
+      s_price:
+        items?.p_size_status === 1 ? +items?.s_price_per_size : +items?.s_price,
+    }));
+
+    const total = dataSummary.reduce(
+      (acc, item) => acc + parseFloat(+item.t_price || 0),
+      0
+    );
+    const totalExpense = dataSummary.reduce(
+      (acc, item) => acc + parseFloat(+item.p_price || 0),
+      0
+    );
+
+    setTotalPrice(total); // Assuming you have a `setTotalPrice` state function
+    setTotalPurchase(totalExpense); // Assuming you have a `setTotalPrice` state function
+    setTotalProfit(totalPrice - totalExpense); // Assuming you have a `setTotalPrice` state function
   };
 
   const handleData = () => {
@@ -192,7 +211,7 @@ const Sales = () => {
         </div>
       </Card>
 
-      <Card className={"mt-3"}>
+      <Card className={"mt-3 p-2"}>
         <div className="flex justify-between p-2">
           <p className="w-[5%] border-2 text-center border-r-0">S. No.</p>
           <p className="w-[15%] border-2 text-center border-r-0">Item Name</p>
@@ -240,7 +259,7 @@ const Sales = () => {
               <p className="w-[10%] border-2 text-center border-r-0">
                 {items?.p_size_status === 0
                   ? items?.p_price
-                  : items?.s_price_per_size}
+                  : items?.p_price_per_size}
               </p>
               <p className="w-[10%] border-2 text-center border-r-0">
                 <input
@@ -253,7 +272,7 @@ const Sales = () => {
                   value={
                     items?.p_size_status === 0
                       ? items?.s_price
-                      : items?.p_price_per_size
+                      : items?.s_price_per_size
                   }
                 />
               </p>
@@ -280,6 +299,24 @@ const Sales = () => {
               </p>
             </div>
           ))}
+        {data.length !== 0 && (
+          <div className="mt-3 flex flex-col items-end">
+            <div className="border-2 w-72 flex border-b-0 text-center">
+              <p className="border-r-2 w-[50%]">Total Recievable</p>
+              <p className="w-[50%]">{totalPrice.toFixed(3)}</p>
+            </div>
+            <div className="border-2 w-72 flex  text-center">
+              <p className="border-r-2 border-t-0 w-[50%]">Total Puchase</p>
+              <p className="w-[50%]">{totalPurchase.toFixed(3)}</p>
+            </div>
+            <div className="border-2 w-72 flex border-t-0 text-center">
+              <p className="border-r-2 w-[50%]">Total Profit</p>
+              <p className="w-[50%]">
+                {(totalPrice - totalPurchase).toFixed(3)}
+              </p>
+            </div>
+          </div>
+        )}
       </Card>
     </div>
   );
