@@ -1,6 +1,8 @@
-"use client";
+"use client"; // Ensure that the component is client-side
 
 import React from "react";
+import { useRouter } from "next/navigation";
+
 import {
   Menubar,
   MenubarCheckboxItem,
@@ -18,6 +20,15 @@ import {
 } from "@/components/ui/menubar"; // Adjust the import path as needed
 
 const SubHeader = ({ menus }) => {
+  const router = useRouter();
+
+  const handleNavigation = (route) => {
+    if (route) {
+      // Make sure the route is correct
+      router.push(route); // Navigate to the given route
+    }
+  };
+
   const renderMenuItems = (items) => {
     return items.map((item, index) => {
       if (item.separator) {
@@ -32,6 +43,7 @@ const SubHeader = ({ menus }) => {
                 key={radioIndex}
                 value={radioItem.value ?? "default"}
                 className="hover:bg-gray-100 p-2 rounded-md transition"
+                onClick={() => handleNavigation(radioItem.route)} // Ensure correct route
               >
                 {radioItem.label}
               </MenubarRadioItem>
@@ -74,6 +86,7 @@ const SubHeader = ({ menus }) => {
           className={`hover:bg-gray-400 p-2 rounded-md transition ${
             item.disabled ? "opacity-50 cursor-not-allowed" : ""
           }`}
+          onClick={() => handleNavigation(item.route)} // Ensure correct route
         >
           {item.label}
           {item.shortcut && (

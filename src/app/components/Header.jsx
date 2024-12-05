@@ -6,7 +6,7 @@ const menuConfig = [
     trigger: "Inventory",
     items: [
       { label: "Unit" },
-      { label: "Category" },
+      { label: "Category", route: "/screens/Inventory/Category" },
       { label: "Location" },
       { label: "Create Item" },
       { label: "Physical Stock Taking" },
@@ -14,7 +14,10 @@ const menuConfig = [
 
       {
         label: "Reports",
-        subItems: [{ label: "List of Items" }, { label: "List of GRNs" }],
+        subItems: [
+          { label: "List of Items", route: "/screens/Inventory/Item" },
+          { label: "List of GRNs" },
+        ],
       },
     ],
   },

@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useRef, useCallback, useState } from "react";
 import { Card } from "@/app/components/Card";
 import Heading from "@/app/components/Heading";
