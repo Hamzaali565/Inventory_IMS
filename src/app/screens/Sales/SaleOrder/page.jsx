@@ -173,8 +173,20 @@ const Sales = () => {
     setTotalPurchase(totalExpense);
   };
 
-  const handleData = () => {
-    console.log("data", data);
+  const handleData = async () => {
+    try {
+      const response = await fetch(`${url}/sales`, {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ data, totalPrice, totalPurchase }),
+      });
+      let newResponse = (await response.json()).data;
+      console.log(newResponse);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (

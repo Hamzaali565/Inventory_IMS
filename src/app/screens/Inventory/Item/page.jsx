@@ -119,6 +119,7 @@ const Inventory = () => {
           return;
         }
       }
+
       const response = await fetch(`${url}/item`, {
         method: "POST",
         headers: {
