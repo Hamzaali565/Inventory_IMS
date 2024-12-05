@@ -96,66 +96,6 @@ const Sales = () => {
     }
   };
 
-  // const callForItem = async (scan_code) => {
-  //   try {
-  //     console.log("Scan Code:", scan_code);
-
-  //     let response = await fetch(`${url}/sales?scan_code=${scan_code}`);
-  //     response = (await response.json())?.data?.data;
-  //     console.log("response", response);
-
-  //     // Initialize `d_qty` and `t_price`
-  //     const newItems = response
-  //       .map((item) => ({
-  //         ...item,
-  //         d_qty: 1,
-  //         t_price:
-  //           item?.p_size_status === 0
-  //             ? +item.s_price * (+item?.d_qty ? +item?.d_qty + 1 : 1)
-  //             : +item.s_price_per_size * (+item?.d_qty ? +item?.d_qty + 1 : 1),
-  //       }))
-  //       .filter((item) => !(item.batch_no !== "Loc_P" && item.p_size_stock === item.d_qty)); // Filter items
-
-  //     // Check for duplicates
-  //     setData((prev) => {
-  //       const updatedData = prev.map((item) =>
-  //         newItems.find((newItem) => newItem.item_id === item.item_id)
-  //           ? {
-  //               ...item,
-  //               d_qty: item.d_qty + 1,
-  //               t_price:
-  //                 item?.p_size_status === 0
-  //                   ? (
-  //                       +item.s_price * (+item?.d_qty ? +item?.d_qty + 1 : 1)
-  //                     ).toFixed(2)
-  //                   : (
-  //                       +item.s_price_per_size *
-  //                       (+item?.d_qty ? +item?.d_qty + 1 : 1)
-  //                     ).toFixed(2),
-  //             }
-  //           : item
-  //       );
-
-  //       // Append non-duplicate items
-  //       const uniqueItems = newItems.filter(
-  //         (newItem) => !prev.some((item) => item.item_id === newItem.item_id)
-  //       );
-
-  //       return [...updatedData, ...uniqueItems];
-  //     });
-
-  //     // Clear the input
-  //     setBarCode("");
-  //     if (inputRef.current) {
-  //       inputRef.current.focus();
-  //     }
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //     setBarCode("");
-  //     errorSound.play();
-  //   }
-  // };
-
   const debouncedCallForItem = useCallback(
     debounce((scan_code) => {
       callForItem(scan_code);

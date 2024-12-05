@@ -1,6 +1,7 @@
+"use client";
+
 // reducer.js
 import { createSlice } from "@reduxjs/toolkit";
-
 // Get the URL dynamically on the client
 const getUrl = () => {
   if (typeof window !== "undefined") {

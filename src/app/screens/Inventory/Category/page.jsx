@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/app/components/Button";
 import { Card } from "@/app/components/Card";
 import Heading from "@/app/components/Heading";
