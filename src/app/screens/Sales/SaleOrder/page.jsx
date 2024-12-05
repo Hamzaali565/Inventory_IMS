@@ -12,7 +12,6 @@ const Sales = () => {
   const [focus, setFocus] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
   const [totalPurchase, setTotalPurchase] = useState(0);
-  const [totalProfit, setTotalProfit] = useState(0);
   // Ref to focus the input
   const inputRef = useRef(null);
   const errorSound = new Audio("/audio/ErrorMessage.mp3");
@@ -170,9 +169,8 @@ const Sales = () => {
       0
     );
 
-    setTotalPrice(total); // Assuming you have a `setTotalPrice` state function
-    setTotalPurchase(totalExpense); // Assuming you have a `setTotalPrice` state function
-    setTotalProfit(totalPrice - totalExpense); // Assuming you have a `setTotalPrice` state function
+    setTotalPrice(total);
+    setTotalPurchase(totalExpense);
   };
 
   const handleData = () => {
