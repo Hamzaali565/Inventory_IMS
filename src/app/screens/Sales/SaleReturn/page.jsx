@@ -32,7 +32,9 @@ const Sales = () => {
     try {
       console.log("Scan Code:", scan_code);
 
-      let response = await fetch(`${url}/sales?scan_code=${scan_code}`);
+      let response = await fetch(`${url}/sales?scan_code=${scan_code}`, {
+        credentials: "include",
+      });
       response = (await response.json())?.data?.data;
       console.log("response", response);
 

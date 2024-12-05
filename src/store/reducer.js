@@ -30,11 +30,14 @@ const mainSlice = createSlice({
       state.url = action.payload;
     },
     // Other actions can go here
+    setLoginData: (state, action) => {
+      state.response = action.payload; // Store the login data in response
+    },
   },
 });
 
 // Export the action creators
-export const { setUrl } = mainSlice.actions;
+export const { setUrl, setLoginData } = mainSlice.actions;
 
 // Export the reducer
 export default mainSlice.reducer;

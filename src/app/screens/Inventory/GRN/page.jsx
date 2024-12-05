@@ -73,7 +73,8 @@ const GRN = () => {
   const get_authentic_po = async (value) => {
     try {
       const response = await fetch(
-        `${url}/purchase_order_sorted?po_no=${value?.po_no}`
+        `${url}/purchase_order_sorted?po_no=${value?.po_no}`,
+        { credentials: "include" }
       );
       if (!response.ok) {
         throw new Error(response.statusText);

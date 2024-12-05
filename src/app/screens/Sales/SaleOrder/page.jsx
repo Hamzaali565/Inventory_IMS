@@ -39,7 +39,9 @@ const Sales = () => {
     try {
       console.log("Scan Code:", scan_code);
 
-      let response = await fetch(`${url}/sales?scan_code=${scan_code}`);
+      let response = await fetch(`${url}/sales?scan_code=${scan_code}`, {
+        credentials: "include",
+      });
       response = (await response.json())?.data?.data;
       console.log("response", response);
 
@@ -192,6 +194,7 @@ const Sales = () => {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({ data, totalPrice, totalPurchase }),
       });
       let newResponse = (await response.json()).data;

@@ -308,6 +308,7 @@ const PurcahseOrder = () => {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           po_date,
           supplier_name: supplier?.name,
@@ -333,7 +334,8 @@ const PurcahseOrder = () => {
   const getPoDetail = async (value) => {
     try {
       const response = await fetch(
-        `${url}/purchase_order_detail?po_no=${value?.code}`
+        `${url}/purchase_order_detail?po_no=${value?.code}`,
+        { credentials: "include" }
       );
       const dataResponse = (await response.json()).data;
       console.log(dataResponse);
