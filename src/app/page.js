@@ -25,8 +25,8 @@ export default function Home() {
         {/* <Stock /> */}
         {/* <Supplier /> */}
         {/* <PurcahseOrder /> */}
-        <GRN />
-        {/* <Sales /> */}
+        {/* <GRN /> */}
+        <Sales />
       </div>
     </Provider>
   );

@@ -4,11 +4,12 @@ import Heading from "@/app/components/Heading";
 import { LabInput } from "@/app/components/LabInput";
 import { useSelector } from "react-redux";
 import { debounce } from "lodash";
+import { Button } from "@/app/components/Button";
 const Sales = () => {
   const [bar_code, setBarCode] = useState("");
   const [data, setData] = useState([]);
   const url = useSelector((state) => state.main.url);
-
+  const [focus, setFocus] = useState(false);
   // Ref to focus the input
   const inputRef = useRef(null);
   const errorSound = new Audio("/audio/ErrorMessage.mp3");
@@ -17,38 +18,93 @@ const Sales = () => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, []);
+  }, [focus]);
+
+  useEffect(() => {
+    console.log("Data reset or updated:", data);
+  }, [data]);
+
+  // const callForItem = async (scan_code) => {
+  //   try {
+  //     console.log("Scan Code:", scan_code);
+  //     let response = await fetch(`${url}/sales?scan_code=${scan_code}`);
+  //     response = (await response.json())?.data?.data;
+  //     console.log(" here with response ", response[0]?.item_id);
+  //     console.log("upData", data);
+
+  //     const isDuplicate = data.some(
+  //       (item) => item.item_id === response[0]?.item_id
+  //     );
+
+  //     console.log("Duplicate", isDuplicate);
+
+  //     response = response.map((items) => ({
+  //       ...items,
+  //       d_qty: 1,
+  //       t_price: 0,
+  //     }));
+  //     setData((prev) => [...prev, ...response]);
+  //     console.log("data:", data);
+  //     // Clear the input after fetching
+  //     setBarCode("");
+  //     if (inputRef.current) {
+  //       inputRef.current.focus();
+  //     }
+  //   } catch (error) {
+  //     console.log("Error:", error);
+  //     setBarCode("");
+  //     errorSound.play();
+  //   }
+  // };
 
   const callForItem = async (scan_code) => {
     try {
       console.log("Scan Code:", scan_code);
+
       let response = await fetch(`${url}/sales?scan_code=${scan_code}`);
       response = (await response.json())?.data?.data;
-      console.log(" here with response ", response);
 
-      data.forEach((resp) => {
-        let find_duplicate = response.find(
-          (item) => item?.item_id === resp?.item_id
-        );
-        if (find_duplicate) {
-          throw new Error("Duplicate Items Not Allowed !!!");
-        }
-      });
-      console.log("Response:", response);
-      response = response.map((items) => ({
-        ...items,
+      // Initialize `d_qty` and `t_price`
+      const newItems = response.map((item) => ({
+        ...item,
         d_qty: 1,
-        t_qty: 0,
+        t_price:
+          item?.p_size_status === 0
+            ? item.s_price * (item?.d_qty ? item?.d_qty + 1 : 1)
+            : item.s_price_per_size * (item?.d_qty ? item?.d_qty + 1 : 1),
       }));
-      console.log("data:", data);
-      setData((prev) => [...prev, ...response]);
-      // Clear the input after fetching
+
+      // Check for duplicates
+      setData((prev) => {
+        const updatedData = prev.map((item) =>
+          newItems.find((newItem) => newItem.item_id === item.item_id)
+            ? {
+                ...item,
+                d_qty: item.d_qty + 1,
+                t_price:
+                  item?.p_size_status === 0
+                    ? item.s_price * (item?.d_qty ? item?.d_qty + 1 : 1)
+                    : item.s_price_per_size *
+                      (item?.d_qty ? item?.d_qty + 1 : 1),
+              }
+            : item
+        );
+
+        // Append non-duplicate items
+        const uniqueItems = newItems.filter(
+          (newItem) => !prev.some((item) => item.item_id === newItem.item_id)
+        );
+
+        return [...updatedData, ...uniqueItems];
+      });
+
+      // Clear the input
       setBarCode("");
       if (inputRef.current) {
         inputRef.current.focus();
       }
     } catch (error) {
-      console.log("Error:", error);
+      console.error("Error:", error);
       setBarCode("");
       errorSound.play();
     }
@@ -76,10 +132,10 @@ const Sales = () => {
             return {
               ...items,
               s_price_per_size: +value,
-              t_qty: +value * items?.d_qty,
+              t_price: +value * items?.d_qty,
             };
           } else {
-            return { ...items, [key]: +value, t_qty: +value * items?.d_qty };
+            return { ...items, [key]: +value, t_price: +value * items?.d_qty };
           }
         }
         if (key === "d_qty") {
@@ -87,7 +143,7 @@ const Sales = () => {
             return {
               ...items,
               [key]: +value,
-              t_qty: +value * items?.s_price_per_size,
+              t_price: +value * items?.s_price_per_size,
             };
           } else {
             return { ...items, [key]: +value, t_qty: +value * items?.s_price };
@@ -98,6 +154,10 @@ const Sales = () => {
     });
     console.log("updated_data", updated_data);
     setData(updated_data);
+  };
+
+  const handleData = () => {
+    console.log("data", data);
   };
 
   return (
@@ -117,6 +177,16 @@ const Sales = () => {
               const value = e.target.value;
               setBarCode(value); // Update input state
               debouncedCallForItem(value); // Trigger debounced call
+            }}
+          />
+        </div>
+        <div className="flex justify-center space-x-3 mt-4">
+          <Button text={"Save"} onClick={handleData} />
+          <Button
+            text={"reset"}
+            onClick={() => {
+              setData([]);
+              setFocus(!focus);
             }}
           />
         </div>
@@ -200,7 +270,7 @@ const Sales = () => {
                 />
               </p>
               <p className="w-[5%] border-2 text-center border-r-0">
-                {items?.t_qty}
+                {items?.t_price}
               </p>
               <p
                 className="w-[10%] border-2 text-center text-sm p-1 font-bold text-red-600 cursor-pointer"
