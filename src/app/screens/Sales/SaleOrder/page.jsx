@@ -12,6 +12,7 @@ const Sales = () => {
   const [focus, setFocus] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
   const [totalPurchase, setTotalPurchase] = useState(0);
+  const [message, setMessage] = useState("");
   // Ref to focus the input
   const inputRef = useRef(null);
   const errorSound = new Audio("/audio/ErrorMessage.mp3");
@@ -20,10 +21,16 @@ const Sales = () => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
+    if (message !== "") {
+      setTimeout(() => {
+        setMessage("");
+      }, 2000);
+    }
   }, [focus]);
 
   useEffect(() => {
     console.log("Data reset or updated:", data);
+
     checkTotal();
   }, [data]);
 
@@ -47,11 +54,15 @@ const Sales = () => {
 
       // Check for duplicates
       setData((prev) => {
-        const updatedData = prev.map((item) =>
-          newItems.find((newItem) => newItem.item_id === item.item_id)
+        const updatedData = prev.map((item) => {
+          if (item?.d_qty === item?.total_stock) return item;
+          return newItems.find((newItem) => newItem.item_id === item.item_id)
             ? {
                 ...item,
-                d_qty: item.d_qty + 1,
+                d_qty:
+                  item.d_qty === item?.total_stock
+                    ? item.d_qty
+                    : item.d_qty + 1,
                 t_price:
                   item?.p_size_status === 0
                     ? (
@@ -62,8 +73,8 @@ const Sales = () => {
                         (+item?.d_qty ? +item?.d_qty + 1 : 1)
                       ).toFixed(2),
               }
-            : item
-        );
+            : item;
+        });
 
         // Append non-duplicate items
         const uniqueItems = newItems.filter(
@@ -84,6 +95,66 @@ const Sales = () => {
       errorSound.play();
     }
   };
+
+  // const callForItem = async (scan_code) => {
+  //   try {
+  //     console.log("Scan Code:", scan_code);
+
+  //     let response = await fetch(`${url}/sales?scan_code=${scan_code}`);
+  //     response = (await response.json())?.data?.data;
+  //     console.log("response", response);
+
+  //     // Initialize `d_qty` and `t_price`
+  //     const newItems = response
+  //       .map((item) => ({
+  //         ...item,
+  //         d_qty: 1,
+  //         t_price:
+  //           item?.p_size_status === 0
+  //             ? +item.s_price * (+item?.d_qty ? +item?.d_qty + 1 : 1)
+  //             : +item.s_price_per_size * (+item?.d_qty ? +item?.d_qty + 1 : 1),
+  //       }))
+  //       .filter((item) => !(item.batch_no !== "Loc_P" && item.p_size_stock === item.d_qty)); // Filter items
+
+  //     // Check for duplicates
+  //     setData((prev) => {
+  //       const updatedData = prev.map((item) =>
+  //         newItems.find((newItem) => newItem.item_id === item.item_id)
+  //           ? {
+  //               ...item,
+  //               d_qty: item.d_qty + 1,
+  //               t_price:
+  //                 item?.p_size_status === 0
+  //                   ? (
+  //                       +item.s_price * (+item?.d_qty ? +item?.d_qty + 1 : 1)
+  //                     ).toFixed(2)
+  //                   : (
+  //                       +item.s_price_per_size *
+  //                       (+item?.d_qty ? +item?.d_qty + 1 : 1)
+  //                     ).toFixed(2),
+  //             }
+  //           : item
+  //       );
+
+  //       // Append non-duplicate items
+  //       const uniqueItems = newItems.filter(
+  //         (newItem) => !prev.some((item) => item.item_id === newItem.item_id)
+  //       );
+
+  //       return [...updatedData, ...uniqueItems];
+  //     });
+
+  //     // Clear the input
+  //     setBarCode("");
+  //     if (inputRef.current) {
+  //       inputRef.current.focus();
+  //     }
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //     setBarCode("");
+  //     errorSound.play();
+  //   }
+  // };
 
   const debouncedCallForItem = useCallback(
     debounce((scan_code) => {
@@ -183,10 +254,18 @@ const Sales = () => {
         body: JSON.stringify({ data, totalPrice, totalPurchase }),
       });
       let newResponse = (await response.json()).data;
-      console.log(newResponse);
+      setMessage(newResponse);
+      reset();
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const reset = () => {
+    setData([]);
+    setTotalPrice(0);
+    setTotalPurchase(0);
+    setFocus(!focus);
   };
 
   return (
@@ -196,7 +275,7 @@ const Sales = () => {
       </Card>
 
       <Card className={"p-2 mt-2"}>
-        <div className="flex justify-center mt-2">
+        <div className="flex justify-center mt-2 flex-col items-center">
           <LabInput
             label={"Scan Item"}
             placeholder={"Scan Item"}
@@ -208,16 +287,11 @@ const Sales = () => {
               debouncedCallForItem(value); // Trigger debounced call
             }}
           />
+          <p className="font bold mt-3 underline ">{message}</p>
         </div>
         <div className="flex justify-center space-x-3 mt-4">
           <Button text={"Save"} onClick={handleData} />
-          <Button
-            text={"reset"}
-            onClick={() => {
-              setData([]);
-              setFocus(!focus);
-            }}
-          />
+          <Button text={"reset"} onClick={() => reset()} />
         </div>
       </Card>
 
