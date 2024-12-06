@@ -10,12 +10,17 @@ import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoginData } from "@/store/acrion";
 import { setLogin } from "@/store/reducer";
+import { useRouter } from "next/navigation";
 
 const Login = () => {
   const [user_id, setUserId] = useState("");
   const [cred, setCred] = useState("");
 
   const url = useSelector((state) => state.main.url);
+  const login = useSelector((state) => state.main.login);
+  const router = useRouter();
+  console.log(url, login);
+
   const dispatch = useDispatch();
   const submitDetails = async () => {
     try {
@@ -38,8 +43,11 @@ const Login = () => {
         throw new Error(response?.status);
       }
       const data = (await response.json()).data.data;
+      console.log(data);
+
       dispatch(setLoginData(data));
       dispatch(setLogin(true));
+      router.push("/screens/Sales/SaleOrder");
     } catch (error) {
       console.log("error", error);
     }
@@ -82,4 +90,4 @@ const Login = () => {
   );
 };
 
-export { Login };
+export default Login;

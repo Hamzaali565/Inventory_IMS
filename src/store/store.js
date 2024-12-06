@@ -1,7 +1,5 @@
-"use client";
-// store.ts
 import { configureStore } from "@reduxjs/toolkit";
-import mainReducer from "@/store/reducer";
+import mainReducer from "./reducer";
 
 // Define the state types
 

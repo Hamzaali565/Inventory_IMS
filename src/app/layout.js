@@ -1,11 +1,8 @@
 "use client"; // This makes the layout component client-side
 import localFont from "next/font/local";
 import "./globals.css";
+import DynamicLayout from "./DynamicLayout"; // Import the new component
 import { useSelector } from "react-redux";
-import { Login } from "./screens/Auth/page";
-import { Sales } from "./screens/Sales/SaleOrder/page";
-import Header from "./components/Header";
-import { StoreProvider } from "@/store/storeProvider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -19,26 +16,14 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-// Remove the metadata export from this file
 export default function RootLayout({ children }) {
+  // const url = useSelector((state) => state.main.url);
+  // console.log("url", url);
+
+  const fonts = { geistSans, geistMono }; // Pass fonts as a prop
   return (
-    <StoreProvider>
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          {/* <div>
-            {!loginData ? (
-              <Login /> 
-            ) : ( */}
-          <div>
-            <Header /> {/* Header should be visible if logged in */}
-            <main>{children}</main> {/* Render main content */}
-          </div>
-          {/* )} */}
-          {/* </div> */}
-        </body>
-      </html>
-    </StoreProvider>
+    <DynamicLayout fonts={fonts}>
+      {children} {/* Pass children between the tags */}
+    </DynamicLayout>
   );
 }

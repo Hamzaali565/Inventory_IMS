@@ -2,27 +2,33 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setLogin, setLoginData } from "@/store/reducer";
-import Header from "./components/Header";
-import { Login } from "./screens/Auth/page";
-import Unit from "./screens/Inventory/Unit/page"; // Assuming this is your homepage after login
+import { useRouter } from "next/navigation"; // Import useRouter for navigation
+import Sales from "./screens/Sales/SaleOrder/page";
 
 export default function Home() {
   const dispatch = useDispatch(); // Invoke useDispatch() correctly
+  const router = useRouter(); // Initialize useRouter for routing
   const url = useSelector((state) => state.main.url);
   const login = useSelector((state) => state.main.login);
-  const loginData = useSelector((state) => state.main.response);
 
   console.log("URL:", url);
   console.log("Login State:", login);
-  console.log("Login Data:", loginData);
 
   useEffect(() => {
     checkLogin();
   }, []);
 
+  useEffect(() => {
+    if (login) {
+      router.push("/screens/Sales/SaleOrder"); // Navigate to Sales page if logged in
+    } else {
+      router.push("/screens/Auth"); // Navigate to Login page if not logged in
+    }
+  }, [login, router]);
+
   const checkLogin = async () => {
     try {
-      let response = await fetch(`${url}/login-check`, {
+      const response = await fetch(`${url}/login-check`, {
         method: "GET",
         credentials: "include",
       });
@@ -41,13 +47,5 @@ export default function Home() {
     }
   };
 
-  return (
-    <div>
-      {!login ? (
-        <Login /> // Show login screen if not logged in
-      ) : (
-        <Unit /> // Show main screen (e.g., Unit) if logged in
-      )}
-    </div>
-  );
+  return null; // No UI rendering here since navigation handles redirection
 }

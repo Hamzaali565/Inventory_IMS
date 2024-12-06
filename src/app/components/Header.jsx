@@ -59,6 +59,10 @@ const menuConfig = [
       },
     ],
   },
+  {
+    trigger: "Account",
+    items: [{ label: "Log-out", route: "/screens/Auth" }],
+  },
 
   //   {
   //     trigger: "Purchase Order",

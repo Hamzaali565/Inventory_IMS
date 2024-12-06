@@ -18,14 +18,32 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar"; // Adjust the import path as needed
+import { useSelector } from "react-redux";
 
 const SubHeader = ({ menus }) => {
   const router = useRouter();
-
-  const handleNavigation = (route) => {
+  const url = useSelector((state) => state.main.url);
+  const handleNavigation = async (route) => {
     if (route) {
-      // Make sure the route is correct
-      router.push(route); // Navigate to the given route
+      if (route === "/screens/Auth") {
+        const logout_user = async () => {
+          try {
+            let response = await fetch(`${url}/logout`, {
+              method: "post",
+              credentials: "include",
+            });
+            response = (await response.json()).data;
+            console.log("response", response);
+          } catch (error) {
+            console.log("error in log_out", error);
+            return;
+          }
+        };
+        await logout_user().catch((error) => {
+          throw new Error("Failed to logout");
+        });
+      }
+      router.push(route);
     }
   };
 
