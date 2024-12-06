@@ -21,7 +21,7 @@ const menuConfig = [
           },
           {
             label: "Pervoius Stock Ledger",
-            route: "/screens/Inventory/C-Stock",
+            route: "/screens/Inventory/P-Stock",
           },
           { label: "List of Items" },
           { label: "List of GRNs" },
