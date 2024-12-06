@@ -6,7 +6,7 @@ import { LabInput } from "@/app/components/LabInput";
 import { useSelector } from "react-redux";
 import { debounce } from "lodash";
 import { Button } from "@/app/components/Button";
-const Sales = () => {
+const SaleReturn = () => {
   const [bar_code, setBarCode] = useState("");
   const [data, setData] = useState([]);
   const url = useSelector((state) => state.main.url);
@@ -323,4 +323,4 @@ const Sales = () => {
   );
 };
 
-export default Sales;
+export default SaleReturn;

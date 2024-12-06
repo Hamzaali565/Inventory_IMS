@@ -350,4 +350,4 @@ const Sales = () => {
   );
 };
 
-export { Sales };
+export default Sales;

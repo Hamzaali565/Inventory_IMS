@@ -5,19 +5,16 @@ const menuConfig = [
   {
     trigger: "Inventory",
     items: [
-      { label: "Unit" },
+      { label: "Unit", route: "/screens/Inventory/Unit" },
       { label: "Category", route: "/screens/Inventory/Category" },
-      { label: "Location" },
-      { label: "Create Item" },
-      { label: "Physical Stock Taking" },
-      { label: "Good Receipt Note" },
+      { label: "Location", route: "/screens/Inventory/Location" },
+      { label: "Create Item", route: "/screens/Inventory/Item" },
+      { label: "Physical Stock Taking", route: "/screens/Inventory/Stock" },
+      { label: "Good Receipt Note", route: "/screens/Inventory/GRN" },
 
       {
         label: "Reports",
-        subItems: [
-          { label: "List of Items", route: "/screens/Inventory/Item" },
-          { label: "List of GRNs" },
-        ],
+        subItems: [{ label: "List of Items" }, { label: "List of GRNs" }],
       },
     ],
   },
@@ -26,7 +23,8 @@ const menuConfig = [
     items: [
       { label: "Create Shift" },
       { label: "Close Shift" },
-      { label: "Create Sales Order" },
+      { label: "Create Sales Order", route: "/screens/Sales/SaleOrder" },
+      { label: "Sale Return", route: "/screens/Sales/SaleReturn" },
       { label: "Pending Bills" },
       { label: "Re-Print Bill" },
       {
@@ -43,7 +41,7 @@ const menuConfig = [
   {
     trigger: "Purchase Order",
     items: [
-      { label: "Create Purchase Order" },
+      { label: "Create Purchase Order", route: "/screens/PurOrder" },
       {
         label: "Reports",
         subItems: [{ label: "List Of Purchase Order" }],
@@ -53,7 +51,7 @@ const menuConfig = [
   {
     trigger: "Supplier",
     items: [
-      { label: "Add Supplier" },
+      { label: "Add Supplier", route: "/screens/Supplier" },
       { label: "Payments" },
       {
         label: "Reports",
