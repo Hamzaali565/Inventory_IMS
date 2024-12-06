@@ -1,4 +1,5 @@
 "use client";
+
 import { Button } from "@/app/components/Button";
 import { Card } from "@/app/components/Card";
 import Heading from "@/app/components/Heading";
@@ -27,6 +28,8 @@ const Stock = () => {
       p_size_status: false,
       p_size_qty: 0,
       p_size_stock: 0,
+      item_unit: "",
+      unit_id: 0,
     },
   ]);
 
@@ -46,6 +49,8 @@ const Stock = () => {
         p_size_status: false,
         p_size_qty: 0,
         p_size_stock: 0,
+        item_unit: "",
+        unit_id: 0,
       },
     ]);
   };
@@ -76,6 +81,8 @@ const Stock = () => {
           location: location?.name,
           location_id: location?.code,
           expiry: "",
+          item_unit: "",
+          unit_id: 0,
         },
       ]);
       return;
@@ -105,6 +112,8 @@ const Stock = () => {
             batch_no: value?.name,
             p_size_status: value?.p_size_status,
             p_size_qty: value?.p_size_qty,
+            item_unit: value?.item_unit,
+            unit_id: value?.unit_id,
           };
         }
       }
@@ -216,7 +225,7 @@ const Stock = () => {
         expiry: "2035-12-31",
         category: items?.category,
         categort_id: items?.category_id,
-        unit_name: items?.item_unit,
+        item_unit: items?.item_unit,
         unit_id: items?.unit_id,
         p_size_status: items?.p_size_status,
         p_size_qty: items?.p_size_qty,
@@ -245,13 +254,17 @@ const Stock = () => {
   const submitData = async (authenticData) => {
     try {
       console.log(authenticData);
-
+      let newData = authenticData.map((items) => ({
+        ...items,
+        p_size_stock:
+          items?.p_size_status === 0 ? items?.batch_qty : items?.p_size_stock,
+      }));
       const response = await fetch(`${url}/stock`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ data: authenticData }),
+        body: JSON.stringify({ data: newData }),
         credentials: "include",
       });
       if (!response.ok) {
