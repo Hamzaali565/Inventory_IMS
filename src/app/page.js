@@ -1,19 +1,52 @@
 "use client";
-import { useState } from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setLogin, setLoginData } from "@/store/reducer";
 import Header from "./components/Header";
 import { Login } from "./screens/Auth/page";
-import { Sales } from "./screens/Sales/SaleOrder/page"; // Assuming this is your homepage after login
+import Unit from "./screens/Inventory/Unit/page"; // Assuming this is your homepage after login
 
 export default function Home() {
-  // State to track whether the user is logged in or not
+  const dispatch = useDispatch(); // Invoke useDispatch() correctly
+  const url = useSelector((state) => state.main.url);
+  const login = useSelector((state) => state.main.login);
   const loginData = useSelector((state) => state.main.response);
+
+  console.log("URL:", url);
+  console.log("Login State:", login);
+  console.log("Login Data:", loginData);
+
+  useEffect(() => {
+    checkLogin();
+  }, []);
+
+  const checkLogin = async () => {
+    try {
+      let response = await fetch(`${url}/login-check`, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+
+      const data = (await response.json()).data.data;
+      dispatch(setLogin(true));
+      dispatch(setLoginData(data));
+    } catch (error) {
+      dispatch(setLogin(false));
+      dispatch(setLoginData([]));
+      console.error("Login Check Error:", error);
+    }
+  };
 
   return (
     <div>
-      {!loginData ? (
+      {!login ? (
         <Login /> // Show login screen if not logged in
       ) : (
-        <Sales /> // Show main screen (Sales) if logged in
+        <Unit /> // Show main screen (e.g., Unit) if logged in
       )}
     </div>
   );

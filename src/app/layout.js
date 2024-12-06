@@ -21,24 +21,22 @@ const geistMono = localFont({
 
 // Remove the metadata export from this file
 export default function RootLayout({ children }) {
-  const loginData = useSelector((state) => state.main.response);
   return (
     <StoreProvider>
       <html lang="en">
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          <div>
-            {/* Show login screen if no login data */}
+          {/* <div>
             {!loginData ? (
-              <Login /> // Render login component if not logged in
-            ) : (
-              <div>
-                <Header /> {/* Header should be visible if logged in */}
-                <main>{children}</main> {/* Render main content */}
-              </div>
-            )}
+              <Login /> 
+            ) : ( */}
+          <div>
+            <Header /> {/* Header should be visible if logged in */}
+            <main>{children}</main> {/* Render main content */}
           </div>
+          {/* )} */}
+          {/* </div> */}
         </body>
       </html>
     </StoreProvider>

@@ -14,11 +14,9 @@ const getUrl = () => {
 
 // Define the initial state
 const initialState = {
-  login: null,
+  login: false,
   url: getUrl(), // Use the helper function
-  toggle: null,
   response: [],
-  shift: [],
 };
 
 // Create the slice
@@ -26,6 +24,9 @@ const mainSlice = createSlice({
   name: "main",
   initialState,
   reducers: {
+    setLogin: (state, action) => {
+      state.login = action.payload; // Update login status
+    },
     setUrl: (state, action) => {
       state.url = action.payload;
     },
@@ -37,7 +38,7 @@ const mainSlice = createSlice({
 });
 
 // Export the action creators
-export const { setUrl, setLoginData } = mainSlice.actions;
+export const { setUrl, setLoginData, setLogin } = mainSlice.actions;
 
 // Export the reducer
 export default mainSlice.reducer;

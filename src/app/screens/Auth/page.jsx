@@ -9,6 +9,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoginData } from "@/store/acrion";
+import { setLogin } from "@/store/reducer";
 
 const Login = () => {
   const [user_id, setUserId] = useState("");
@@ -38,6 +39,7 @@ const Login = () => {
       }
       const data = (await response.json()).data.data;
       dispatch(setLoginData(data));
+      dispatch(setLogin(true));
     } catch (error) {
       console.log("error", error);
     }
