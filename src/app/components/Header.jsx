@@ -62,11 +62,13 @@ const menuConfig = [
   {
     trigger: "Supplier",
     items: [
-      { label: "Add Supplier", route: "/screens/Supplier" },
+      { label: "Add Supplier", route: "/screens/Supplier/Create-S" },
       { label: "Payments" },
       {
         label: "Reports",
-        subItems: [{ label: "List Of Supplier" }],
+        subItems: [
+          { label: "Supplier Ledger", route: "/screens/Supplier/Supplier-Led" },
+        ],
       },
     ],
   },
