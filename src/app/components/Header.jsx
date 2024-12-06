@@ -14,7 +14,18 @@ const menuConfig = [
 
       {
         label: "Reports",
-        subItems: [{ label: "List of Items" }, { label: "List of GRNs" }],
+        subItems: [
+          {
+            label: "Current Stock Ledger",
+            route: "/screens/Inventory/C-Stock",
+          },
+          {
+            label: "Pervoius Stock Ledger",
+            route: "/screens/Inventory/C-Stock",
+          },
+          { label: "List of Items" },
+          { label: "List of GRNs" },
+        ],
       },
     ],
   },
