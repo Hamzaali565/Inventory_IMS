@@ -13,7 +13,9 @@ const Sales = () => {
   const [focus, setFocus] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
   const [totalPurchase, setTotalPurchase] = useState(0);
+  const [totalRecieve, setTotalRecieve] = useState(0);
   const [message, setMessage] = useState("");
+  const [costumer_name, setCostumerName] = useState("");
   // Ref to focus the input
   const inputRef = useRef(null);
   const errorSound = new Audio("/audio/ErrorMessage.mp3");
@@ -185,6 +187,7 @@ const Sales = () => {
 
     setTotalPrice(total);
     setTotalPurchase(totalExpense);
+    setTotalRecieve(total);
   };
 
   const handleData = async () => {
@@ -195,7 +198,13 @@ const Sales = () => {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ data, totalPrice, totalPurchase }),
+        body: JSON.stringify({
+          data,
+          totalPrice,
+          totalPurchase,
+          r_amount: totalRecieve,
+          costumer_name,
+        }),
       });
       let newResponse = (await response.json()).data;
       setMessage(newResponse);
@@ -205,11 +214,20 @@ const Sales = () => {
     }
   };
 
+  const updateRecievable = (amount) => {
+    if (amount > totalPrice || amount < 0) {
+      alert(`Amount should not be greater than total amount or less than 0`);
+      return;
+    }
+    setTotalRecieve(amount);
+  };
+
   const reset = () => {
     setData([]);
     setTotalPrice(0);
     setTotalPurchase(0);
     setFocus(!focus);
+    setCostumerName("");
   };
 
   return (
@@ -230,6 +248,12 @@ const Sales = () => {
               setBarCode(value); // Update input state
               debouncedCallForItem(value); // Trigger debounced call
             }}
+          />
+          <LabInput
+            label={"Costumer name"}
+            onChange={(e) => setCostumerName(e.target.value.toUpperCase())}
+            placeholder={"Costumer Name"}
+            value={costumer_name}
           />
           <p className="font bold mt-3 underline ">{message}</p>
         </div>
@@ -330,8 +354,23 @@ const Sales = () => {
         {data.length !== 0 && (
           <div className="mt-3 flex flex-col items-end">
             <div className="border-2 w-72 flex border-b-0 text-center">
-              <p className="border-r-2 w-[50%]">Total Recievable</p>
+              <p className="border-r-2 w-[50%]">Total Amount</p>
               <p className="w-[50%]">{totalPrice.toFixed(3)}</p>
+            </div>
+            <div className="border-2 w-72 flex border-b-0 text-center">
+              <p className="border-r-2 w-[50%]">Total Receive</p>
+
+              <p className="w-[50%] p-2">
+                {/* {totalPrice.toFixed(3)} */}
+                <input
+                  type="number"
+                  className="w-[80%] text-black"
+                  name=""
+                  id=""
+                  value={totalRecieve}
+                  onChange={(e) => updateRecievable(+e.target.value)}
+                />
+              </p>
             </div>
             <div className="border-2 w-72 flex  text-center">
               <p className="border-r-2 border-t-0 w-[50%]">Total Puchase</p>

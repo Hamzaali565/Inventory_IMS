@@ -258,6 +258,7 @@ const Stock = () => {
         ...items,
         p_size_stock:
           items?.p_size_status === 0 ? items?.batch_qty : items?.p_size_stock,
+        grn_no: 0,
       }));
       const response = await fetch(`${url}/stock`, {
         method: "POST",

@@ -5,6 +5,7 @@ import Heading from "@/app/components/Heading";
 import { LabInput } from "@/app/components/LabInput";
 import Modal from "@/app/components/Modal";
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 
 const PaymentToSupplier = () => {
   const [data, setData] = useState(null);
@@ -12,7 +13,7 @@ const PaymentToSupplier = () => {
   const [paymentType, setPaymentType] = useState("");
   const [remarks, setRemarks] = useState("");
   const [openPO, setOpenPO] = useState(false);
-
+  const url = useSelector((state) => state.main.url);
   const handleOpenPO = (open) => {
     setOpenPO(open);
   };
@@ -21,7 +22,7 @@ const PaymentToSupplier = () => {
     if (paying === 0) return alert("Please select a supplier to pay");
     if (paymentType === "") return alert("Please select a payment type");
     try {
-      let response = await fetch("/api/supplier-payment", {
+      let response = await fetch(`${url}/supplier-payment`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,10 +37,13 @@ const PaymentToSupplier = () => {
         }),
         credentials: "include",
       });
-      response = (await response.json()).data.data;
+      response = (await response.json()).data;
       console.log("response", response);
+      reset();
+      alert(`Payment Created Successfully !!!`);
     } catch (error) {
       console.log("Supplier payment error", error);
+      alert(`Payment Creation Failed !!!`);
     }
   };
 
@@ -126,7 +130,7 @@ const PaymentToSupplier = () => {
           />
         </div>
         <div className="flex justify-center space-x-4 p-2">
-          {data && <Button text={"Save"} />}
+          {data && <Button text={"Save"} onClick={supplierPayment} />}
           <Button text={"Reset"} onClick={reset} />
         </div>
       </Card>
