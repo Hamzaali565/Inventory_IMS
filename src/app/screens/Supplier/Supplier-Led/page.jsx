@@ -75,7 +75,7 @@ const SupplierLed = () => {
         {data.length !== 0 &&
           data.map((items, index) => (
             <div className="mt-2 border-2" key={index}>
-              <p className="text-center text-lg bg-yellow-500">
+              <p className="text-center text-lg bg-yellow-500 text-black font-bold">
                 {items[0]?.supplier_name}
               </p>
 
@@ -89,8 +89,11 @@ const SupplierLed = () => {
                 <p className="w-[20%] text-center border-2 border-r-0">
                   Total Payables
                 </p>
-                <p className="w-[20%] text-center border-2 border-r-0">
+                <p className="w-[10%] text-center border-2 border-r-0">
                   Total Payed
+                </p>
+                <p className="w-[10%] text-center border-2 border-r-0">
+                  Pending
                 </p>
                 <p className="w-[15%] text-center border-2 border-r-0">User</p>
                 <p className="w-[15%] text-center border-2 border-r-0">Date</p>
@@ -107,8 +110,11 @@ const SupplierLed = () => {
                     <p className="w-[20%] text-center border-2 border-r-0 border-t-0">
                       {nestedItem?.payable}
                     </p>
-                    <p className="w-[20%] text-center border-2 border-r-0 border-t-0">
+                    <p className="w-[10%] text-center border-2 border-r-0 border-t-0">
                       {nestedItem?.payed}
+                    </p>
+                    <p className="w-[10%] text-center border-2 border-r-0 border-t-0">
+                      {nestedItem?.payable - nestedItem?.payed}
                     </p>
                     <p className="w-[15%] text-center border-2 border-r-0 border-t-0">
                       {nestedItem?.c_user}
@@ -118,7 +124,7 @@ const SupplierLed = () => {
                     </p>
                   </div>
                 ))}
-              <p className="text-right mr-10 text-green-500">
+              <p className="text-right mr-10 text-green-500 ">
                 Total Payables{" "}
                 {items
                   .reduce(

@@ -51,6 +51,9 @@ const Modal = ({
       } else if (headerName === "Supliers Name") {
         get_po_incompleted();
         return;
+      } else if (headerName === "Payment Supliers Name") {
+        false_payment();
+        return;
       }
       console.log("effected");
     }
@@ -227,6 +230,31 @@ const Modal = ({
     }
   };
 
+  const false_payment = async () => {
+    try {
+      const response = await fetch(`${url}/false-payment`, {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      const category = await response.json();
+      const structuredData = category.data.data.map((items) => ({
+        ...items,
+        code: items.grn_no,
+        name: items.supplier_name,
+        status: items?.difference,
+      }));
+
+      setData(structuredData);
+      console.log(structuredData);
+
+      setCopyData(structuredData);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
   const filterNames = (input) => {
     const searchTerm = input.toLowerCase();
     if (input === "") {
