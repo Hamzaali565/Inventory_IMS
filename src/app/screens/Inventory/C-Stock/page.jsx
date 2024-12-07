@@ -1,20 +1,29 @@
 "use client";
 
+import { Button } from "@/app/components/Button";
 import { Card } from "@/app/components/Card";
 import Heading from "@/app/components/Heading";
-import React, { useEffect, useState } from "react";
+import { LabInput } from "@/app/components/LabInput";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 
 const CStock = () => {
   const [data, setData] = useState([]);
+  const [toDate, setToDate] = useState("");
+  const [fromDate, setFromDate] = useState("");
   const url = useSelector((state) => state.main.url);
-  useEffect(() => {
-    curren_stock();
-  });
 
+  const reset = () => {
+    setToDate("");
+    setFromDate("");
+    setData([]);
+  };
   const curren_stock = async () => {
     try {
-      let response = await fetch(`${url}/stock`, { credentials: "include" });
+      let response = await fetch(
+        `${url}/stock?toDate=${toDate}&fromDate=${fromDate}`,
+        { credentials: "include" }
+      );
       response = (await response.json()).data?.data;
       console.log("response", response);
 
@@ -31,20 +40,40 @@ const CStock = () => {
       console.log("formattedData", formattedData);
     } catch (error) {
       console.log("error of current_stock", error);
+      setData([]);
     }
   };
   return (
     <div>
       <Card>
         <Heading text={"Current Stock"} className={"mt-4 p-2 text-2xl"} />
+        <div>
+          <LabInput
+            label={"From-date"}
+            type={"Date"}
+            value={fromDate}
+            onChange={(e) => setFromDate(e.target.value)}
+          />
+          <LabInput
+            label={"To-date"}
+            type={"Date"}
+            value={toDate}
+            onChange={(e) => setToDate(e.target.value)}
+          />
+        </div>
+        <div className="flex justify-center space-x-3 my-3 pb-2">
+          <Button text={"Load"} onClick={() => curren_stock()} />
+          <Button text={"Reset"} onClick={() => reset()} />
+        </div>
       </Card>
       <Card className={"mt-3 p-2"}>
         {data.length !== 0 &&
           data.map((items, index) => (
-            <div className="mt-2 border-2 border-b-0" key={index}>
-              <p className="text-center text-lg">{items[0]?.item_name}</p>
-
-              <div className="flex w-[100%]">
+            <div className="mt-2 border-2" key={index}>
+              <p className="text-center text-lg bg-blue-800">
+                {items[0]?.item_name}
+              </p>
+              <div className="flex w-[100%] bg-orange-600">
                 <p className="w-[15%] text-center border-2 border-r-0 border-l-0">
                   Batch No
                 </p>
@@ -93,6 +122,12 @@ const CStock = () => {
                     </p>
                   </div>
                 ))}
+              <p className="text-green-500 text-right mr-9">
+                Total Availaible stock{" "}
+                {items
+                  .reduce((total, item) => total + item?.p_size_stock, 0)
+                  .toLocaleString()}
+              </p>
             </div>
           ))}
       </Card>

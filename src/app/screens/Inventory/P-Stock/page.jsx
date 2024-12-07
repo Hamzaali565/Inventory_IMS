@@ -73,9 +73,8 @@ const PStock = () => {
       <Card className={"mt-3 p-2"}>
         {data.length !== 0 &&
           data.map((items, index) => (
-            <div className="mt-2 border-2 border-b-0" key={index}>
+            <div className="mt-2 border-2 " key={index}>
               <p className="text-center text-lg">{items[0]?.item_name}</p>
-
               <div className="flex w-[100%]">
                 <p className="w-[15%] text-center border-2 border-r-0 border-l-0">
                   Batch No
@@ -121,6 +120,12 @@ const PStock = () => {
                     </p>
                   </div>
                 ))}
+              <p className="text-green-500 text-right mr-9">
+                Total Issued Quantity{" "}
+                {items
+                  .reduce((total, item) => total + item?.issued_qty, 0)
+                  .toLocaleString()}
+              </p>
             </div>
           ))}
       </Card>

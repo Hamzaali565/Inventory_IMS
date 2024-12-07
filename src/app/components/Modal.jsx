@@ -54,6 +54,9 @@ const Modal = ({
       } else if (headerName === "Payment Supliers Name") {
         false_payment();
         return;
+      } else if (headerName === "Customer Name") {
+        credit_clearance();
+        return;
       }
       console.log("effected");
     }
@@ -255,6 +258,32 @@ const Modal = ({
       console.log("error", error);
     }
   };
+  const credit_clearance = async () => {
+    try {
+      const response = await fetch(`${url}/credit_for_clearance`, {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      const category = await response.json();
+      const structuredData = category.data.data.map((items) => ({
+        ...items,
+        code: items.id,
+        name: items.costumer_name,
+        status: items?.difference,
+      }));
+
+      setData(structuredData);
+      console.log(structuredData);
+
+      setCopyData(structuredData);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
   const filterNames = (input) => {
     const searchTerm = input.toLowerCase();
     if (input === "") {

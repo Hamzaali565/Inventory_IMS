@@ -36,6 +36,10 @@ const menuConfig = [
       { label: "Close Shift" },
       { label: "Create Sales Order", route: "/screens/Sales/SaleOrder" },
       { label: "Sale Return", route: "/screens/Sales/SaleReturn" },
+      {
+        label: "Receive Credit Amount",
+        route: "/screens/Sales/ReceiveCreditAmount",
+      },
       { label: "Pending Bills" },
       { label: "Re-Print Bill" },
       {
