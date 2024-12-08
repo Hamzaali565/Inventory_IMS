@@ -11,6 +11,10 @@ const menuConfig = [
       { label: "Create Item", route: "/screens/Inventory/Item" },
       { label: "Physical Stock Taking", route: "/screens/Inventory/Stock" },
       { label: "Good Receipt Note", route: "/screens/Inventory/GRN" },
+      {
+        label: "Local Purchase Adjustment",
+        route: "/screens/Inventory/LPAdjustment",
+      },
 
       {
         label: "Reports",
