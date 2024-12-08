@@ -119,7 +119,34 @@ const LPAdjustment = () => {
   };
 
   const adjustStock = async () => {
-    console.log("heelo");
+    try {
+      if (!supplier) throw new Error("Please select supplier !!!");
+      data.map((items, index) => {
+        if (!items?.a_qty || items?.a_qty === 0) {
+          throw new Error(`Please Enter quantity for item ${index + 1} !!!`);
+        }
+        return;
+      });
+      console.log(data);
+      let response = await fetch(`${url}/return_lp_items_to_supplier`, {
+        method: "POST",
+        credentials: "include",
+        body: JSON.stringify({
+          supplier_name: supplier?.name,
+          supplier_id: supplier?.code,
+          data,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      response = (await response.json()).data;
+      console.log(response);
+      alert(`Successfully updated LP ✨✨✨`);
+      reset();
+    } catch (error) {
+      alert(`Error ${error.message}`);
+    }
   };
 
   const remove_row = (index_item) => {
@@ -217,27 +244,27 @@ const LPAdjustment = () => {
               </p>
             </div>
           ))}
-        {billCr && (
-          <div className="p-2">
-            <Button
-              text={"Select Supplier"}
-              classNameText={"w-40"}
-              onClick={() => setOpenSupplier(true)}
-            />
-            <LabInput
-              label={"Supplier Name"}
-              placeholder={"Supplier Name"}
-              disabled={true}
-              value={(supplier && supplier?.name) || ""}
-            />
+        <div className="p-2">
+          <Button
+            text={"Select Supplier"}
+            classNameText={"w-40"}
+            onClick={() => setOpenSupplier(true)}
+          />
+          <LabInput
+            label={"Supplier Name"}
+            placeholder={"Supplier Name"}
+            disabled={true}
+            value={(supplier && supplier?.name) || ""}
+          />
+          {billCr && (
             <LabInput
               label={"Outstandings to supplier"}
               placeholder={"Outstandings to supplier"}
               onChange={(e) => setOutstandings(+e.target.value)}
               value={outstandings}
             />
-          </div>
-        )}
+          )}
+        </div>
         {data.length !== 0 && (billCr === true || stockAdj === true) && (
           <Button
             text={"Save"}
