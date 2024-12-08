@@ -15,27 +15,37 @@ const SaleReturn = () => {
   const [totalPrice, setTotalPrice] = useState(0);
   const [totalPurchase, setTotalPurchase] = useState(0);
   // Ref to focus the input
-  const inputRef = useRef(null);
+  const barcodeInputRef = useRef(null);
+  const secondInputRef = useRef(null);
   const errorSound = new Audio("/audio/ErrorMessage.mp3");
   // Focus the input on page load
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
+    if (barcodeInputRef.current) {
+      barcodeInputRef.current.focus();
     }
-  }, [focus]);
+  }, []);
+
+  const focusSecondInput = useCallback(() => {
+    if (secondInputRef.current) {
+      secondInputRef.current.focus();
+    }
+  }, []);
 
   useEffect(() => {
     console.log("Data reset or updated:", data);
     checkTotal();
   }, [data]);
 
-  const callForItem = async (scan_code) => {
+  const callForItem = async (key, scan_code) => {
     try {
       console.log("Scan Code:", scan_code);
 
-      let response = await fetch(`${url}/sales?scan_code=${scan_code}`, {
-        credentials: "include",
-      });
+      let response = await fetch(
+        `${url}/sales?scan_code=${scan_code}&key=${key}`,
+        {
+          credentials: "include",
+        }
+      );
       response = (await response.json())?.data?.data;
       console.log("response", response);
 
@@ -51,11 +61,15 @@ const SaleReturn = () => {
 
       // Check for duplicates
       setData((prev) => {
-        const updatedData = prev.map((item) =>
-          newItems.find((newItem) => newItem.item_id === item.item_id)
+        const updatedData = prev.map((item) => {
+          if (item?.d_qty === item?.total_stock) return item;
+          return newItems.find((newItem) => newItem.item_id === item.item_id)
             ? {
                 ...item,
-                d_qty: item.d_qty + 1,
+                d_qty:
+                  item.d_qty === item?.total_stock
+                    ? item.d_qty
+                    : item.d_qty + 1,
                 t_price:
                   item?.p_size_status === 0
                     ? (
@@ -66,8 +80,8 @@ const SaleReturn = () => {
                         (+item?.d_qty ? +item?.d_qty + 1 : 1)
                       ).toFixed(2),
               }
-            : item
-        );
+            : item;
+        });
 
         // Append non-duplicate items
         const uniqueItems = newItems.filter(
@@ -79,9 +93,13 @@ const SaleReturn = () => {
 
       // Clear the input
       setBarCode("");
-      if (inputRef.current) {
-        inputRef.current.focus();
+      setBarCode("");
+      if (barcodeInputRef.current) {
+        barcodeInputRef.current.focus();
       }
+
+      // Auto-focus second input after processing barcode
+      focusSecondInput();
     } catch (error) {
       console.error("Error:", error);
       setBarCode("");
@@ -91,7 +109,7 @@ const SaleReturn = () => {
 
   const debouncedCallForItem = useCallback(
     debounce((scan_code) => {
-      callForItem(scan_code);
+      callForItem("scan_code", scan_code);
     }, 300),
     []
   );
@@ -177,6 +195,9 @@ const SaleReturn = () => {
     setTotalPurchase(totalExpense);
   };
 
+  const recieve_from_parent = (data_from_parent) => {
+    callForItem("id", data_from_parent?.item_id);
+  };
   const handleData = () => {
     console.log("data", data);
   };
@@ -192,7 +213,7 @@ const SaleReturn = () => {
           <LabInput
             label={"Scan Item"}
             placeholder={"Scan Item"}
-            ref={inputRef} // Attach ref to the input
+            ref={barcodeInputRef} // Attach ref to the input
             value={bar_code} // Bind input to state
             onChange={(e) => {
               const value = e.target.value;
@@ -200,7 +221,10 @@ const SaleReturn = () => {
               debouncedCallForItem(value); // Trigger debounced call
             }}
           />
-          <SearchSuggestions />
+          <SearchSuggestions
+            onClick={(data) => recieve_from_parent(data)}
+            ref={secondInputRef}
+          />
         </div>
         <div className="flex justify-center space-x-3 mt-4">
           <Button text={"Save"} onClick={handleData} />

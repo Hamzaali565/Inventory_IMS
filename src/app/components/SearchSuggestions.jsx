@@ -1,13 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LabInput } from "./LabInput";
+import { useSelector } from "react-redux";
 
 // Example suggestions array
 const allSuggestions = [
   "React Tutorial",
   "JavaScript Tutorial",
   "Next.js Tutorial",
-  "How to build a website",
-  "How to build a website",
   "How to build a website",
   "Frontend Development",
   "Web Development",
@@ -16,20 +15,59 @@ const allSuggestions = [
   "JavaScript Async/Await",
 ];
 
-const SearchSuggestions = () => {
-  const [input, setInput] = useState(""); // State to store user input
+const SearchSuggestions = ({ value, onClick, ref }) => {
+  const [input, setInput] = useState(value); // State to store user input
   const [filteredSuggestions, setFilteredSuggestions] = useState([]); // State for filtered suggestions
-
-  const handleInputChange = (e) => {
-    const query = e.target.value;
-    setInput(query);
-
-    // Filter suggestions based on user input
-    const filtered = allSuggestions.filter((suggestion) =>
-      suggestion.toLowerCase().includes(query.toLowerCase())
-    );
-    setFilteredSuggestions(filtered);
+  const [selectedIndex, setSelectedIndex] = useState(-1); // Index of the selected suggestion
+  const url = useSelector((state) => state.main.url);
+  const handleInputChange = async (e) => {
+    try {
+      setInput(e.target.value);
+      let response = await fetch(
+        `${url}/item-partial?item_name=${e.target.value}`,
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
+      response = (await response.json()).data.data;
+      setFilteredSuggestions(response);
+      setSelectedIndex(-1);
+    } catch (error) {
+      console.log("error", error);
+      setFilteredSuggestions([]);
+    }
   };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "ArrowDown") {
+      // Navigate down in suggestions
+      setSelectedIndex((prevIndex) =>
+        prevIndex < filteredSuggestions.length - 1 ? prevIndex + 1 : 0
+      );
+    } else if (e.key === "ArrowUp") {
+      // Navigate up in suggestions
+      setSelectedIndex((prevIndex) =>
+        prevIndex > 0 ? prevIndex - 1 : filteredSuggestions.length - 1
+      );
+    } else if (e.key === "Enter" && selectedIndex >= 0) {
+      // Select the current suggestion
+      setInput(filteredSuggestions[selectedIndex].item_name);
+      onClick(filteredSuggestions[selectedIndex]);
+      // console.log(filteredSuggestions[selectedIndex]);
+
+      setFilteredSuggestions([]); // Hide suggestions after selection
+    } else if (e.key === "Escape") {
+      // Dismiss suggestions on Escape
+      setFilteredSuggestions([]);
+    }
+  };
+
+  // Add event listener to handle keyboard events
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [filteredSuggestions, selectedIndex]);
 
   return (
     <div className="search-suggestions-container">
@@ -41,6 +79,7 @@ const SearchSuggestions = () => {
         onChange={handleInputChange}
         placeholder="Search..."
         className="search-input"
+        ref={ref}
       />
 
       {/* Suggestions dropdown */}
@@ -49,9 +88,11 @@ const SearchSuggestions = () => {
           {filteredSuggestions.map((suggestion, index) => (
             <li
               key={index}
-              className="suggestion-item border-b-2 cursor-pointer hover:bg-gray-400"
+              className={`suggestion-item border-b-2 cursor-pointer ${
+                index === selectedIndex ? "bg-gray-400 text-white" : ""
+              }`}
             >
-              {suggestion}
+              {suggestion.item_name}
             </li>
           ))}
         </ul>
