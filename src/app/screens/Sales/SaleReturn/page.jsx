@@ -6,6 +6,7 @@ import { LabInput } from "@/app/components/LabInput";
 import { useSelector } from "react-redux";
 import { debounce } from "lodash";
 import { Button } from "@/app/components/Button";
+import SearchSuggestions from "@/app/components/SearchSuggestions";
 const SaleReturn = () => {
   const [bar_code, setBarCode] = useState("");
   const [data, setData] = useState([]);
@@ -187,7 +188,7 @@ const SaleReturn = () => {
       </Card>
 
       <Card className={"p-2 mt-2"}>
-        <div className="flex justify-center mt-2">
+        <div className="flex justify-center mt-2 space-x-5 relative">
           <LabInput
             label={"Scan Item"}
             placeholder={"Scan Item"}
@@ -199,6 +200,7 @@ const SaleReturn = () => {
               debouncedCallForItem(value); // Trigger debounced call
             }}
           />
+          <SearchSuggestions />
         </div>
         <div className="flex justify-center space-x-3 mt-4">
           <Button text={"Save"} onClick={handleData} />
@@ -212,7 +214,7 @@ const SaleReturn = () => {
         </div>
       </Card>
 
-      <Card className={"mt-3 p-2"}>
+      <Card className={"mt-3 p-2 z-20"}>
         <div className="flex justify-between p-2">
           <p className="w-[5%] border-2 text-center border-r-0">S. No.</p>
           <p className="w-[15%] border-2 text-center border-r-0">Item Name</p>
