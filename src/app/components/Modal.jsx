@@ -60,6 +60,9 @@ const Modal = ({
       } else if (headerName === "Customer Names") {
         get_lp_invoices();
         return;
+      } else if (headerName === "Invoice Supliers Name") {
+        payment_false_invoice();
+        return;
       }
       console.log("effected");
     }
@@ -274,6 +277,31 @@ const Modal = ({
       const structuredData = category.data.data.map((items) => ({
         ...items,
         code: items.grn_no,
+        name: items.supplier_name,
+        status: items?.difference,
+      }));
+
+      setData(structuredData);
+      console.log(structuredData);
+
+      setCopyData(structuredData);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+  const payment_false_invoice = async () => {
+    try {
+      const response = await fetch(`${url}/payment_false_invoice`, {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      const category = await response.json();
+      const structuredData = category.data.data.map((items) => ({
+        ...items,
+        code: items.invoice_no,
         name: items.supplier_name,
         status: items?.difference,
       }));

@@ -105,7 +105,9 @@ const SupplierLed = () => {
                       {nestedIndex + 1}
                     </p>
                     <p className="w-[15%] text-center border-2 border-r-0 border-t-0 ">
-                      {nestedItem?.grn_no}
+                      {nestedItem?.grn_no === 0
+                        ? `invoice no ${nestedItem?.invoice_no}`
+                        : nestedItem?.grn_no}
                     </p>
                     <p className="w-[20%] text-center border-2 border-r-0 border-t-0">
                       {nestedItem?.payable}

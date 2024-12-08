@@ -13,9 +13,14 @@ const PaymentToSupplier = () => {
   const [paymentType, setPaymentType] = useState("");
   const [remarks, setRemarks] = useState("");
   const [openPO, setOpenPO] = useState(false);
+  const [openInvoice, setOpenInvoice] = useState(false);
+  const [billType, setBillType] = useState(false);
   const url = useSelector((state) => state.main.url);
   const handleOpenPO = (open) => {
     setOpenPO(open);
+  };
+  const handleOpenInvoice = (open) => {
+    setOpenInvoice(open);
   };
 
   const supplierPayment = async () => {
@@ -47,11 +52,42 @@ const PaymentToSupplier = () => {
     }
   };
 
+  const supplierPaymentInvoice = async () => {
+    if (paying === 0) return alert("Please select a supplier to pay");
+    if (paymentType === "") return alert("Please select a payment type");
+    try {
+      let response = await fetch(`${url}/create_payment_invoice`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          payment_type: paymentType,
+          remarks: remarks,
+          paying: paying,
+          supplier_name: data?.supplier_name,
+          supplier_id: data?.supplier_id,
+          invoice_no: data?.invoice_no,
+          id: data?.id,
+        }),
+        credentials: "include",
+      });
+      response = (await response.json()).data;
+      console.log("response", response);
+      reset();
+      alert(`Payment Created Successfully !!!`);
+    } catch (error) {
+      console.log("Supplier payment error", error);
+      alert(`Payment Creation Failed !!!`);
+    }
+  };
+
   const reset = () => {
     setData(null);
     setPaymentType("");
     setPaying(0);
     setRemarks("");
+    setBillType(false);
   };
 
   const onChangeInput = (value, key) => {
@@ -74,7 +110,18 @@ const PaymentToSupplier = () => {
       </Card>
 
       <Card>
-        <Button text={"GRN No"} onClick={(e) => setOpenPO(true)} />
+        <div className="flex justify-center space-x-2">
+          <Button
+            text={"GRN No"}
+            onClick={(e) => setOpenPO(true)}
+            classNameText={"w-40"}
+          />
+          <Button
+            text={"Invoice No"}
+            onClick={(e) => setOpenInvoice(true)}
+            classNameText={"w-40"}
+          />
+        </div>
         <div className="grid grid-cols-2">
           <LabInput
             label={"Total Amount"}
@@ -123,14 +170,19 @@ const PaymentToSupplier = () => {
             disabled={true}
           />
           <LabInput
-            label={"GRN No"}
+            label={!billType ? "GRN No" : "Invoice No"}
             placeholder={"GRN No"}
-            value={(data && data.grn_no) || 0}
+            value={(data && data.grn_no) || (data && data.invoice_no) || 0}
             disabled={true}
           />
         </div>
         <div className="flex justify-center space-x-4 p-2">
-          {data && <Button text={"Save"} onClick={supplierPayment} />}
+          {data && (
+            <Button
+              text={"Save"}
+              onClick={!billType ? supplierPayment : supplierPaymentInvoice}
+            />
+          )}
           <Button text={"Reset"} onClick={reset} />
         </div>
       </Card>
@@ -143,6 +195,18 @@ const PaymentToSupplier = () => {
         headerStatus="Pending Amount"
         placeholder="Search"
         onClick={(data_recieve) => setData(data_recieve)}
+      />
+      <Modal
+        isOpen={openInvoice}
+        onOpenChange={handleOpenInvoice}
+        headerCode="Invoice No."
+        headerName="Invoice Supliers Name"
+        headerStatus="Pending Amount"
+        placeholder="Search"
+        onClick={(data_recieve) => {
+          setData(data_recieve);
+          setBillType(true);
+        }}
       />
     </div>
   );
