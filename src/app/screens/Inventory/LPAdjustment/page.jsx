@@ -48,6 +48,14 @@ const LPAdjustment = () => {
         throw new Error(response.statusText);
       }
       response = (await response.json()).data.data;
+      response = response.map((items) => ({
+        ...items,
+        p_qty: items?.a_qty
+          ? Number(items?.d_qty || 0) - Number(items?.a_qty || 0)
+          : Number(items?.d_qty || 0),
+        a_qty: 0,
+      }));
+
       setData(response);
       setOtherDetails(pass_data);
       console.log("response", response);
@@ -69,9 +77,9 @@ const LPAdjustment = () => {
   const handleAdjustQty = (data_rec, value) => {
     let updatedData = data.map((items) => {
       if (data_rec?.item_id === items?.item_id) {
-        if (value > items?.d_qty || value < 0) {
+        if (value > items?.p_qty || value < 0) {
           alert(
-            `Adjust quantity could not be greater then dispense quantity or less than zero`
+            `Adjust quantity could not be greater then pending quantity or less than zero`
           );
           return items;
         }
@@ -208,23 +216,25 @@ const LPAdjustment = () => {
       </Card>
       <Card className={"mt-2 p-2"}>
         <div className="w-[100%] border-2 flex font-bold">
-          <p className="w-[40%] text-center border-r-2">Item Name</p>
+          <p className="w-[30%] text-center border-r-2">Item Name</p>
           <p className="w-[10%] text-center border-r-2">Item unit</p>
           <p className="w-[20%] text-center border-r-2">Dispense Quantity</p>
-          <p className="w-[30%] text-center border-r-2">Adjust Quantity</p>
-          <p className="w-[10%] text-center ">Remove</p>
+          <p className="w-[15%] text-center border-r-2">Pending Adjustment</p>
+          <p className="w-[20%] text-center border-r-2">Adjust Quantity</p>
+          <p className="w-[5%] text-center ">Remove</p>
         </div>
         {data.length !== 0 &&
           data.map((items, index) => (
             <div className="w-[100%] mt-1 border-2 flex p-1" key={index}>
-              <p className="w-[40%] text-center border-r-2">
+              <p className="w-[30%] text-center border-r-2">
                 {items?.item_name}
               </p>
               <p className="w-[10%] text-center border-r-2">
                 {items?.item_unit}
               </p>
               <p className="w-[20%] text-center border-r-2">{items?.d_qty}</p>
-              <p className="w-[30%] text-center border-r-2">
+              <p className="w-[15%] text-center border-r-2">{items?.p_qty}</p>
+              <p className="w-[20%] text-center border-r-2">
                 <input
                   type="number"
                   name=""
@@ -237,7 +247,7 @@ const LPAdjustment = () => {
                 />
               </p>
               <p
-                className="w-[10%] text-center font-bold hover:text-red-600 cursor-pointer"
+                className="w-[5%] text-center font-bold hover:text-red-600 cursor-pointer"
                 onClick={(e) => remove_row(index)}
               >
                 -

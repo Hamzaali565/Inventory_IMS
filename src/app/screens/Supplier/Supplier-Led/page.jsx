@@ -122,7 +122,7 @@ const SupplierLed = () => {
                       {nestedItem?.c_user}
                     </p>
                     <p className="w-[15%] text-center border-2 border-r-0 border-t-0">
-                      {moment(nestedItem?.c_date).format("DD/MM/YYYY HH:MM:SS")}
+                      {moment(nestedItem?.c_date).format("DD/MM/YYYY HH:mm:ss")}
                     </p>
                   </div>
                 ))}

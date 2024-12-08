@@ -92,7 +92,7 @@ const CreditCustomer = () => {
               <p className="w-[15%] text-center border-r-2">{items?.c_user}</p>
               <p className="w-[15%] text-center">
                 {items?.c_date
-                  ? moment(items?.c_date).format("DD/MM/YYYY hh:mm:ss")
+                  ? moment(items?.c_date).format("DD/MM/YYYY HH:mm:ss")
                   : ""}
               </p>
             </div>
