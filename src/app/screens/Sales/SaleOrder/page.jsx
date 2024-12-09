@@ -7,21 +7,35 @@ import { useSelector } from "react-redux";
 import { debounce } from "lodash";
 import { Button } from "@/app/components/Button";
 import SearchSuggestions from "@/app/components/SearchSuggestions";
+import SuggestName from "@/app/components/SuggestName";
 const Sales = () => {
+  const url = useSelector((state) => state.main.url);
+
   const [bar_code, setBarCode] = useState("");
   const [data, setData] = useState([]);
-  const url = useSelector((state) => state.main.url);
   const [focus, setFocus] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
   const [totalPurchase, setTotalPurchase] = useState(0);
   const [totalRecieve, setTotalRecieve] = useState(0);
   const [message, setMessage] = useState("");
   const [costumer_name, setCostumerName] = useState("");
+  const [previousPendings, setPreviousPendings] = useState([]);
+
   // Ref to focus the input
   const barcodeInputRef = useRef(null);
   const secondInputRef = useRef(null);
   const errorSound = new Audio("/audio/ErrorMessage.mp3");
   // Focus the input on page load
+
+  const reset = () => {
+    setData([]);
+    setTotalPrice(0);
+    setTotalPurchase(0);
+    setFocus(!focus);
+    setCostumerName("");
+    setPreviousPendings([]);
+  };
+
   useEffect(() => {
     if (barcodeInputRef.current) {
       barcodeInputRef.current.focus();
@@ -241,12 +255,19 @@ const Sales = () => {
     callForItem("id", data_from_parent?.item_id);
   };
 
-  const reset = () => {
-    setData([]);
-    setTotalPrice(0);
-    setTotalPurchase(0);
-    setFocus(!focus);
-    setCostumerName("");
+  const prev_pending_details = async (data_from_parent) => {
+    try {
+      setCostumerName(data_from_parent?.costumer_name);
+      let response = await fetch(
+        `${url}/previous_record?name=${data_from_parent?.costumer_name}`,
+        { method: "GET", credentials: "include" }
+      );
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      response = (await response.json()).data.data;
+      setPreviousPendings(response);
+    } catch (error) {}
   };
 
   return (
@@ -257,27 +278,34 @@ const Sales = () => {
 
       <Card className={"p-2 mt-2"}>
         <div className="flex justify-center mt-2 flex-col items-center">
-          <LabInput
-            label={"Scan Item"}
-            placeholder={"Scan Item"}
-            ref={barcodeInputRef} // Attach ref to the input
-            value={bar_code} // Bind input to state
-            onChange={(e) => {
-              const value = e.target.value;
-              setBarCode(value); // Update input state
-              debouncedCallForItem(value); // Trigger debounced call
-            }}
-          />
-          <LabInput
-            label={"Costumer name"}
-            onChange={(e) => setCostumerName(e.target.value.toUpperCase())}
-            placeholder={"Costumer Name"}
-            value={costumer_name}
-          />
-          <SearchSuggestions
-            onClick={(data) => recieve_from_parent(data)}
-            ref={secondInputRef}
-          />
+          <div className="flex ">
+            <LabInput
+              label={"Scan Item"}
+              placeholder={"Scan Item"}
+              ref={barcodeInputRef} // Attach ref to the input
+              value={bar_code} // Bind input to state
+              onChange={(e) => {
+                const value = e.target.value;
+                setBarCode(value); // Update input state
+                debouncedCallForItem(value); // Trigger debounced call
+              }}
+            />
+            {/* <LabInput
+              label={"Costumer name"}
+              onChange={(e) => setCostumerName(e.target.value.toUpperCase())}
+              placeholder={"Costumer Name"}
+              value={costumer_name}
+            /> */}
+            <SearchSuggestions
+              onClick={(data) => recieve_from_parent(data)}
+              ref={secondInputRef}
+            />
+            <SuggestName
+              getValue={(e) => setCostumerName(e)}
+              value={costumer_name}
+              onClick={(e) => prev_pending_details(e)}
+            />
+          </div>
           <p className="font bold mt-3 underline ">{message}</p>
         </div>
         <div className="flex justify-center space-x-3 mt-4">
@@ -407,6 +435,43 @@ const Sales = () => {
                 {(totalPrice - totalPurchase).toFixed(3)}
               </p>
             </div>
+            <div className="border-2 w-72 flex border-t-0 text-center">
+              <p className="border-r-2 w-[50%]">Customer Name</p>
+              <p className="w-[50%]">{costumer_name}</p>
+            </div>
+          </div>
+        )}
+
+        {previousPendings.length !== 0 && (
+          <div>
+            <Heading
+              text={"PREVIOUS PENDING HISTORY"}
+              className={"my-4 text-2xl underline"}
+            />
+            <div className="w-[100%] flex border-2">
+              <p className="w-[20%] text-center border-r-2">Invoice No</p>
+              <p className="w-[20%] text-center border-r-2">Costumer Name</p>
+              <p className="w-[20%] text-center border-r-2">Total Charges</p>
+              <p className="w-[20%] text-center border-r-2">Recieve Amount</p>
+              <p className="w-[20%] text-center">Pending Amount</p>
+            </div>
+            {previousPendings.map((items, index) => (
+              <div className="w-[100%] flex border-2" key={index}>
+                <p className="w-[20%] text-center border-r-2">{items?.id}</p>
+                <p className="w-[20%] text-center border-r-2">
+                  {items?.costumer_name}
+                </p>
+                <p className="w-[20%] text-center border-r-2">
+                  {items?.total_charges}
+                </p>
+                <p className="w-[20%] text-center border-r-2">
+                  {items?.r_amount}
+                </p>
+                <p className="w-[20%] text-center">
+                  {items?.total_charges - items?.r_amount}
+                </p>
+              </div>
+            ))}
           </div>
         )}
       </Card>

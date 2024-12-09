@@ -15,7 +15,7 @@ const allSuggestions = [
   "JavaScript Async/Await",
 ];
 
-const SearchSuggestions = ({ value, onClick, ref }) => {
+const SuggestName = ({ value, onClick, ref, getValue }) => {
   const [input, setInput] = useState(value); // State to store user input
   const [filteredSuggestions, setFilteredSuggestions] = useState([]); // State for filtered suggestions
   const [selectedIndex, setSelectedIndex] = useState(-1); // Index of the selected suggestion
@@ -23,8 +23,9 @@ const SearchSuggestions = ({ value, onClick, ref }) => {
   const handleInputChange = async (e) => {
     try {
       setInput(e.target.value);
+      getValue(e.target.value);
       let response = await fetch(
-        `${url}/item-partial?item_name=${e.target.value}`,
+        `${url}/customers_name?costumer_name=${e.target.value}`,
         {
           method: "GET",
           credentials: "include",
@@ -52,11 +53,12 @@ const SearchSuggestions = ({ value, onClick, ref }) => {
       );
     } else if (e.key === "Enter" && selectedIndex >= 0) {
       // Select the current suggestion
-      setInput(filteredSuggestions[selectedIndex].item_name);
+      setInput(filteredSuggestions[selectedIndex].costumer_name);
       onClick(filteredSuggestions[selectedIndex]);
-      // console.log(filteredSuggestions[selectedIndex]);
+      console.log(filteredSuggestions[selectedIndex]);
+
+      setFilteredSuggestions([]);
       setInput("");
-      setFilteredSuggestions([]); // Hide suggestions after selection
     } else if (e.key === "Escape") {
       // Dismiss suggestions on Escape
       setFilteredSuggestions([]);
@@ -80,7 +82,7 @@ const SearchSuggestions = ({ value, onClick, ref }) => {
     <div className="search-suggestions-container">
       {/* Input field */}
       <LabInput
-        label={"Search With Item Name"}
+        label={"Enter Customer name"}
         type="text"
         value={input}
         onChange={handleInputChange}
@@ -100,7 +102,7 @@ const SearchSuggestions = ({ value, onClick, ref }) => {
                 index === selectedIndex ? "bg-gray-400 text-white" : ""
               }`}
             >
-              {suggestion.item_name}
+              {suggestion?.costumer_name}
             </li>
           ))}
         </ul>
@@ -109,4 +111,4 @@ const SearchSuggestions = ({ value, onClick, ref }) => {
   );
 };
 
-export default SearchSuggestions;
+export default SuggestName;
