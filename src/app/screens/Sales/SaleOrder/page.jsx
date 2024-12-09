@@ -6,6 +6,7 @@ import { LabInput } from "@/app/components/LabInput";
 import { useSelector } from "react-redux";
 import { debounce } from "lodash";
 import { Button } from "@/app/components/Button";
+import SearchSuggestions from "@/app/components/SearchSuggestions";
 const Sales = () => {
   const [bar_code, setBarCode] = useState("");
   const [data, setData] = useState([]);
@@ -17,19 +18,21 @@ const Sales = () => {
   const [message, setMessage] = useState("");
   const [costumer_name, setCostumerName] = useState("");
   // Ref to focus the input
-  const inputRef = useRef(null);
+  const barcodeInputRef = useRef(null);
+  const secondInputRef = useRef(null);
   const errorSound = new Audio("/audio/ErrorMessage.mp3");
   // Focus the input on page load
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
+    if (barcodeInputRef.current) {
+      barcodeInputRef.current.focus();
     }
-    if (message !== "") {
-      setTimeout(() => {
-        setMessage("");
-      }, 2000);
+  }, []);
+
+  const focusSecondInput = useCallback(() => {
+    if (secondInputRef.current) {
+      secondInputRef.current.focus();
     }
-  }, [focus]);
+  }, []);
 
   useEffect(() => {
     console.log("Data reset or updated:", data);
@@ -37,13 +40,16 @@ const Sales = () => {
     checkTotal();
   }, [data]);
 
-  const callForItem = async (scan_code) => {
+  const callForItem = async (key, scan_code) => {
     try {
       console.log("Scan Code:", scan_code);
 
-      let response = await fetch(`${url}/sales?scan_code=${scan_code}`, {
-        credentials: "include",
-      });
+      let response = await fetch(
+        `${url}/sales?scan_code=${scan_code}&key=${key}`,
+        {
+          credentials: "include",
+        }
+      );
       response = (await response.json())?.data?.data;
       console.log("response", response);
 
@@ -91,9 +97,12 @@ const Sales = () => {
 
       // Clear the input
       setBarCode("");
-      if (inputRef.current) {
-        inputRef.current.focus();
+      if (barcodeInputRef.current) {
+        barcodeInputRef.current.focus();
       }
+
+      // Auto-focus second input after processing barcode
+      focusSecondInput();
     } catch (error) {
       console.error("Error:", error);
       setBarCode("");
@@ -103,7 +112,7 @@ const Sales = () => {
 
   const debouncedCallForItem = useCallback(
     debounce((scan_code) => {
-      callForItem(scan_code);
+      callForItem("scan_code", scan_code);
     }, 300),
     []
   );
@@ -192,6 +201,7 @@ const Sales = () => {
 
   const handleData = async () => {
     try {
+      if (costumer_name === "") return alert(`Please Enter Customer name`);
       const response = await fetch(`${url}/sales`, {
         method: "post",
         headers: {
@@ -208,7 +218,12 @@ const Sales = () => {
       });
       let newResponse = (await response.json()).data;
       setMessage(newResponse);
+      console.log("data", data);
+
       reset();
+      setTimeout(() => {
+        setMessage("");
+      }, 2000);
     } catch (error) {
       console.log(error);
     }
@@ -220,6 +235,10 @@ const Sales = () => {
       return;
     }
     setTotalRecieve(amount);
+  };
+
+  const recieve_from_parent = (data_from_parent) => {
+    callForItem("id", data_from_parent?.item_id);
   };
 
   const reset = () => {
@@ -241,7 +260,7 @@ const Sales = () => {
           <LabInput
             label={"Scan Item"}
             placeholder={"Scan Item"}
-            ref={inputRef} // Attach ref to the input
+            ref={barcodeInputRef} // Attach ref to the input
             value={bar_code} // Bind input to state
             onChange={(e) => {
               const value = e.target.value;
@@ -255,10 +274,16 @@ const Sales = () => {
             placeholder={"Costumer Name"}
             value={costumer_name}
           />
+          <SearchSuggestions
+            onClick={(data) => recieve_from_parent(data)}
+            ref={secondInputRef}
+          />
           <p className="font bold mt-3 underline ">{message}</p>
         </div>
         <div className="flex justify-center space-x-3 mt-4">
-          <Button text={"Save"} onClick={handleData} />
+          {data.length !== 0 && costumer_name !== "" && (
+            <Button text={"Save"} onClick={handleData} />
+          )}
           <Button text={"reset"} onClick={() => reset()} />
         </div>
       </Card>
