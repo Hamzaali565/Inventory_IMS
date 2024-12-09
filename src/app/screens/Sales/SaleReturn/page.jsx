@@ -7,13 +7,16 @@ import { useSelector } from "react-redux";
 import { debounce } from "lodash";
 import { Button } from "@/app/components/Button";
 import SearchSuggestions from "@/app/components/SearchSuggestions";
+import Modal from "@/app/components/Modal";
 const SaleReturn = () => {
+  const url = useSelector((state) => state.main.url);
   const [bar_code, setBarCode] = useState("");
   const [data, setData] = useState([]);
-  const url = useSelector((state) => state.main.url);
   const [focus, setFocus] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
   const [totalPurchase, setTotalPurchase] = useState(0);
+  const [openLocation, setOpenLocation] = useState(false);
+  const [location, setLocation] = useState(null);
   // Ref to focus the input
   const barcodeInputRef = useRef(null);
   const secondInputRef = useRef(null);
@@ -35,6 +38,13 @@ const SaleReturn = () => {
     console.log("Data reset or updated:", data);
     checkTotal();
   }, [data]);
+
+  const resetAll = () => {
+    setData([]);
+    setFocus(!focus);
+    setTotalPrice(0), setTotalPurchase(0);
+    setLocation(null);
+  };
 
   const callForItem = async (key, scan_code) => {
     try {
@@ -143,9 +153,9 @@ const SaleReturn = () => {
         if (key === "d_qty") {
           console.log(items?.total_stock);
 
-          if (value > items?.total_stock) {
-            return items;
-          }
+          // if (value > items?.total_stock) {
+          //   return items;
+          // }
           if (dataObj?.p_size_status === 1) {
             return {
               ...items,
@@ -195,17 +205,55 @@ const SaleReturn = () => {
     setTotalPurchase(totalExpense);
   };
 
+  const handleOpenLocaion = (open) => {
+    setOpenLocation(open);
+  };
+
   const recieve_from_parent = (data_from_parent) => {
     callForItem("id", data_from_parent?.item_id);
   };
-  const handleData = () => {
-    console.log("data", data);
+
+  const handleData = async () => {
+    try {
+      let newdata = data.map((items) => ({
+        ...items,
+        grn_no: 0,
+        location: location?.name,
+        location_id: location?.id,
+        batch_no: "ref-123",
+        input_type: "Agianst Refund",
+        p_size_stock: items?.d_qty,
+        batch_qty:
+          items?.p_size_status === 0
+            ? items?.d_qty
+            : +(items?.d_qty / items?.p_size_qty).toFixed(2),
+      }));
+      console.log("data", newdata);
+      let response = await fetch(`${url}/stock_recieve_against_refund`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          data: newdata,
+          refund_amount: totalPrice,
+          total_purchase: totalPurchase,
+        }),
+      });
+      response = (await response.json()).data;
+      alert(`Refund Recieved ✨✨✨`);
+      resetAll();
+    } catch (error) {
+      console.log(error);
+      alert(`Error while receiving refund !!!`);
+    }
   };
 
   return (
     <div>
-      <Card className={"p-2 mt-2"}>
-        <Heading text={"Sales Order"} />
+      <Card className={"p-2 mt-2 text-2xl text-orange-600"}>
+        <Heading text={"Sales Return"} />
       </Card>
 
       <Card className={"p-2 mt-2"}>
@@ -225,14 +273,25 @@ const SaleReturn = () => {
             onClick={(data) => recieve_from_parent(data)}
             ref={secondInputRef}
           />
+          <Button
+            text={"Select Location"}
+            classNameText={"w-40"}
+            onClick={() => setOpenLocation(true)}
+          />
+          <LabInput
+            placeholder={"Location"}
+            disabled={true}
+            value={(location && location.name) || ""}
+          />
         </div>
         <div className="flex justify-center space-x-3 mt-4">
-          <Button text={"Save"} onClick={handleData} />
+          {data.length !== 0 && location && (
+            <Button text={"Save"} onClick={handleData} />
+          )}
           <Button
             text={"reset"}
             onClick={() => {
-              setData([]);
-              setFocus(!focus);
+              resetAll();
             }}
           />
         </div>
@@ -253,10 +312,8 @@ const SaleReturn = () => {
           <p className="w-[10%] border-2 text-center border-r-0">
             Sale Per Item
           </p>
-          <p className="w-[10%] border-2 text-center border-r-0">Stock Qty</p>
-          <p className="w-[10%] border-2 text-center border-r-0">
-            Dispense Qty
-          </p>
+          <p className="w-[10%] border-2 text-center border-r-0">New Batch</p>
+          <p className="w-[10%] border-2 text-center border-r-0">recieve Qty</p>
           <p className="w-[5%] border-2 text-center border-r-0">Total</p>
           <p className="w-[10%] border-2 text-center ">Rem</p>
         </div>
@@ -303,9 +360,7 @@ const SaleReturn = () => {
                   }
                 />
               </p>
-              <p className="w-[10%] border-2 text-center border-r-0">
-                {items?.total_stock ? items?.total_stock : items?.batch_no}
-              </p>
+              <p className="w-[10%] border-2 text-center border-r-0">ref-123</p>
               <p className="w-[10%] border-2 text-center border-r-0">
                 <input
                   type="number"
@@ -329,7 +384,7 @@ const SaleReturn = () => {
         {data.length !== 0 && (
           <div className="mt-3 flex flex-col items-end">
             <div className="border-2 w-72 flex border-b-0 text-center">
-              <p className="border-r-2 w-[50%]">Total Recievable</p>
+              <p className="border-r-2 w-[50%]">Total Refund</p>
               <p className="w-[50%]">{totalPrice.toFixed(3)}</p>
             </div>
             <div className="border-2 w-72 flex  text-center">
@@ -345,6 +400,15 @@ const SaleReturn = () => {
           </div>
         )}
       </Card>
+      <Modal
+        isOpen={openLocation}
+        onOpenChange={handleOpenLocaion}
+        headerCode="location Code"
+        headerName="Location Name"
+        headerStatus="Status"
+        placeholder="Search"
+        onClick={(data) => setLocation(data)}
+      />
     </div>
   );
 };
