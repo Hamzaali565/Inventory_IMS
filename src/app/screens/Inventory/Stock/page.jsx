@@ -168,7 +168,6 @@ const Stock = () => {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
     saveAs(blob, "Physical Stock Input.xlsx");
-    setOpen(false);
   };
 
   const uploadExcel = (event) => {

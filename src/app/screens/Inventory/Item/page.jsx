@@ -6,12 +6,15 @@ import { LabInput } from "@/app/components/LabInput";
 import Modal from "@/app/components/Modal";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 const Inventory = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isItemOpen, setIsItemOpen] = useState(false);
   const [item_id, setitem_id] = useState(0);
+  const [exceldata, setExcelData] = useState([]);
   const [itemDetail, setItemDetail] = useState({
     item_name: "",
     item_unit: "",
@@ -29,6 +32,26 @@ const Inventory = () => {
   });
 
   const url = useSelector((state) => state.main.url);
+
+  const reset = () => {
+    setItemDetail({
+      item_name: "",
+      item_unit: "",
+      unit_id: 0,
+      category: "",
+      category_id: 0,
+      p_price: 0,
+      s_price: 0,
+      c_user: "Hamza",
+      p_size_status: false,
+      p_size_qty: 0,
+      p_price_per_size: 0,
+      s_price_per_size: 0,
+      scan_code: 0,
+    });
+    setitem_id(0);
+    setExcelData([]);
+  };
 
   const updateItemDetails = (value, iKey) => {
     // Use for...in loop to iterate through keys in newValues
@@ -133,7 +156,7 @@ const Inventory = () => {
         throw new Error(response.statusText);
       }
       console.log(await response.json());
-      alert(`Item Created Successfully !!!`);
+      alert(`Item Created Successfully ✨✨✨`);
       reset();
     } catch (error) {
       alert(`Item Created Failed !!!`);
@@ -155,7 +178,7 @@ const Inventory = () => {
         throw new Error(response.statusText);
       }
       console.log(await response.json());
-      alert(`Item updated successfully !!!`);
+      alert(`Item updated successfully ✨✨✨`);
       reset();
     } catch (error) {
       alert(`Item updation failed !!!`);
@@ -163,23 +186,99 @@ const Inventory = () => {
     }
   };
 
-  const reset = () => {
-    setItemDetail({
-      item_name: "",
-      item_unit: "",
-      unit_id: 0,
-      category: "",
-      category_id: 0,
-      p_price: 0,
-      s_price: 0,
-      c_user: "Hamza",
-      p_size_status: false,
-      p_size_qty: 0,
-      p_price_per_size: 0,
-      s_price_per_size: 0,
-      scan_code: 0,
+  const excel_format = async () => {
+    try {
+      const formattedData = [
+        {
+          item_name: "",
+          unit_id: "",
+          item_unit: "",
+          p_price: "",
+          s_price: "",
+          category: "",
+          category_id: "",
+          p_size_status: "",
+          p_size_qty: "",
+          p_price_per_size: "",
+          s_price_per_size: "",
+          scan_code: "",
+        },
+      ];
+
+      downloadExcelFile(formattedData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const downloadExcelFile = (value) => {
+    const worksheet = XLSX.utils.json_to_sheet(value);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+    // Convert to a Blob and download it
+    const excelBlob = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
     });
-    setitem_id(0);
+    const blob = new Blob([excelBlob], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    saveAs(blob, "Upload Items.xlsx");
+  };
+
+  const uploadExcel = (event) => {
+    const file = event.target.files[0];
+    console.log(file);
+    if (!file.name.includes("Upload Items")) {
+      console.log("File should be Upload Items");
+      return;
+    }
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+
+        // Get the first worksheet in the Excel file
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+
+        // Convert the worksheet to JSON
+        let json = XLSX.utils.sheet_to_json(worksheet);
+        json = json.map((items) => ({
+          ...items,
+          item_name: items?.item_name.toUpperCase(),
+          item_unit: items?.item_unit.toUpperCase(),
+          category: items?.category.toUpperCase(),
+        }));
+        console.log(json);
+        setExcelData(json);
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  };
+
+  const upload_excel_to_database = async () => {
+    try {
+      let response = await fetch(`${url}/upload-excel`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ data: exceldata }),
+      });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      response = await response.json();
+      reset();
+      console.log(response);
+      alert(`Excel Uploaded Successfully 🚀🚀🚀`);
+    } catch (error) {
+      console.log("error", error);
+      alert(`Excel upload failed !!!`);
+    }
   };
 
   return (
@@ -293,6 +392,18 @@ const Inventory = () => {
           className="mt-3"
           classNameText="w-40"
         />
+        <Button
+          text={"Download Excel"}
+          className="mt-3"
+          classNameText="w-40"
+          onClick={excel_format}
+        />
+        <LabInput
+          label={"Select File"}
+          type={"file"}
+          onChange={(e) => uploadExcel(e)}
+          accept={".xlsx, xls"}
+        />
         <Modal
           isOpen={isModalOpen}
           onOpenChange={handleOpenChange}
@@ -322,10 +433,18 @@ const Inventory = () => {
         />
 
         <div className="flex justify-center space-x-2 my-4">
-          <Button
-            onClick={() => (item_id === 0 ? submitItem() : updateItem())}
-            text={item_id !== 0 ? "Update" : "Save"}
-          />
+          {exceldata.length === 0 ? (
+            <Button
+              onClick={() => (item_id === 0 ? submitItem() : updateItem())}
+              text={item_id !== 0 ? "Update" : "Save"}
+            />
+          ) : (
+            <Button
+              text={"Save Excel"}
+              classNameText={"w-40"}
+              onClick={upload_excel_to_database}
+            />
+          )}
           <Button onClick={() => reset()} text="Reset" />
         </div>
       </Card>

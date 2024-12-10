@@ -267,7 +267,9 @@ const Sales = () => {
       }
       response = (await response.json()).data.data;
       setPreviousPendings(response);
-    } catch (error) {}
+    } catch (error) {
+      setPreviousPendings([]);
+    }
   };
 
   return (
