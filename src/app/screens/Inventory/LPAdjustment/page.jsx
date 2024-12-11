@@ -96,14 +96,14 @@ const LPAdjustment = () => {
       if (outstandings === 0) throw new Error("Please Enter outstandings !!!");
       console.log(data);
 
-      let response = await fetch(`${url}/create_supp_ledger_of_lp`, {
+      let response = await fetch(`${url}/create_payment_invoice`, {
         method: "POST",
         credentials: "include",
         body: JSON.stringify({
           supplier_name: supplier?.name,
           supplier_id: supplier?.code,
-          payable: outstandings,
-          data,
+          invoice_no: data[0]?.invoice_no,
+          paying: outstandings,
         }),
         headers: {
           "Content-Type": "application/json",
