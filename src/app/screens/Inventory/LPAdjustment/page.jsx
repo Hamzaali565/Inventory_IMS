@@ -104,6 +104,7 @@ const LPAdjustment = () => {
           supplier_id: supplier?.code,
           invoice_no: data[0]?.invoice_no,
           paying: outstandings,
+          data,
         }),
         headers: {
           "Content-Type": "application/json",

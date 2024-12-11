@@ -11,7 +11,7 @@ const PaymentToSupplier = () => {
   const [data, setData] = useState(null);
   const [paying, setPaying] = useState(0);
   const [paymentType, setPaymentType] = useState("");
-  const [remarks, setRemarks] = useState("");
+  const [remarks, setRemarks] = useState("Against GRN");
   const [openPO, setOpenPO] = useState(false);
   const [openInvoice, setOpenInvoice] = useState(false);
   const [billType, setBillType] = useState(false);
@@ -110,17 +110,17 @@ const PaymentToSupplier = () => {
       </Card>
 
       <Card>
-        <div className="flex justify-center space-x-2">
+        <div className="flex justify-center ">
           <Button
             text={"GRN No"}
             onClick={(e) => setOpenPO(true)}
             classNameText={"w-40"}
           />
-          <Button
+          {/* <Button
             text={"Invoice No"}
             onClick={(e) => setOpenInvoice(true)}
             classNameText={"w-40"}
-          />
+          /> */}
         </div>
         <div className="grid grid-cols-2">
           <LabInput

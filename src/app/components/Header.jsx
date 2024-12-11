@@ -80,6 +80,10 @@ const menuConfig = [
         label: "Reports",
         subItems: [
           { label: "Supplier Ledger", route: "/screens/Supplier/Supplier-Led" },
+          {
+            label: "List Of Payments",
+            route: "/screens/Supplier/List-Of-Payments",
+          },
         ],
       },
     ],
