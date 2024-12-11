@@ -12,6 +12,10 @@ const menuConfig = [
       { label: "Physical Stock Taking", route: "/screens/Inventory/Stock" },
       { label: "Good Receipt Note", route: "/screens/Inventory/GRN" },
       {
+        label: "Direct Good Receipt Note",
+        route: "/screens/Inventory/Direct-GRN",
+      },
+      {
         label: "Local Purchase Adjustment",
         route: "/screens/Inventory/LPAdjustment",
       },
