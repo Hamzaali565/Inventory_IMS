@@ -3,6 +3,7 @@ import { Button } from "@/app/components/Button";
 import { Card } from "@/app/components/Card";
 import Heading from "@/app/components/Heading";
 import { LabInput } from "@/app/components/LabInput";
+import Modal from "@/app/components/Modal";
 import moment from "moment/moment";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
@@ -11,18 +12,27 @@ const ListOfPayments = () => {
   const [data, setData] = useState([]);
   const [toDate, setToDate] = useState("");
   const [fromDate, setFromDate] = useState("");
+  const [openSupplier, setOpenSupplier] = useState(false);
+  const [supplier, setSupplier] = useState(null);
   const url = useSelector((state) => state.main.url);
 
   const reset = () => {
     setToDate("");
     setFromDate("");
     setData([]);
+    setSupplier(null);
+  };
+
+  const handleOpenSupplier = (open) => {
+    setOpenSupplier(open);
   };
 
   const credit_costumer_details = async () => {
     try {
       let response = await fetch(
-        `${url}/supplier-payment-record?fromDate=${fromDate}&toDate=${toDate}`,
+        `${url}/supplier-payment-record?fromDate=${fromDate}&toDate=${toDate}&supplier_id=${
+          (supplier && supplier?.code) || +0
+        }`,
         {
           method: "GET",
           credentials: "include",
@@ -55,6 +65,18 @@ const ListOfPayments = () => {
             type={"Date"}
             value={toDate}
             onChange={(e) => setToDate(e.target.value)}
+          />
+        </div>
+        <div className="flex justify-center space-x-3">
+          <Button
+            text={"Supplier Name"}
+            classNameText={"w-40"}
+            onClick={() => setOpenSupplier(true)}
+          />
+          <LabInput
+            disabled={true}
+            placeholder={"Supplier Name"}
+            value={(supplier && supplier?.name) || ""}
           />
         </div>
         <div className="flex justify-center space-x-3 my-3 pb-2">
@@ -94,6 +116,15 @@ const ListOfPayments = () => {
             </div>
           ))}
       </Card>
+      <Modal
+        isOpen={openSupplier}
+        onOpenChange={handleOpenSupplier}
+        headerCode="Supplier Code"
+        headerName="Supplier Name"
+        headerStatus="Status"
+        placeholder="Search"
+        onClick={(data) => setSupplier(data)}
+      />
     </div>
   );
 };
