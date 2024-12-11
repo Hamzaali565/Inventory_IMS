@@ -54,6 +54,24 @@ const DirectGrn = () => {
     setRemarks("");
     setMessage("");
     setData([]);
+    setDGrn([
+      {
+        item_id: 0,
+        item_name: "",
+        unit_id: 0,
+        item_unit: 0,
+        t_qty: 0,
+        r_qty: 0,
+        b_qty: 0,
+        charges: 0,
+        amount: 0,
+        p_size_status: 0,
+        p_size_qty: 0,
+        batch_no: 0,
+        batch_qty: 0,
+        p_size_stock: 0,
+      },
+    ]);
   };
 
   const handleOpenLocaion = (open) => {
@@ -278,7 +296,8 @@ const DirectGrn = () => {
       }
       let dataRes = await response.json();
       console.log(dataRes);
-      reset(alert(`GRN Created Successfully ⚡⚡`));
+      reset();
+      alert(`GRN Created Successfully ⚡⚡`);
     } catch (error) {
       console.log(error);
       alert(`GRN creation failed contact to Muhammad Hamza !!!`);
@@ -294,12 +313,12 @@ const DirectGrn = () => {
         />
       </Card>
       <Card>
-        <div className={"grid grid-cols-3 mt-2 p-2"}>
-          <Button
+        <div className={"grid grid-cols-2 mt-2 p-2"}>
+          {/* <Button
             text={"Select PO"}
             classNameText={"w-40"}
-            onClick={() => setOpenPO(true)}
-          />
+            onClick={() => console.log(true)}
+          /> */}
           <Button
             text={"Select Supplier"}
             classNameText={"w-40"}
@@ -310,11 +329,11 @@ const DirectGrn = () => {
             classNameText={"w-40"}
             onClick={() => setOpenLocation(true)}
           />
-          <LabInput
+          {/* <LabInput
             placeholder={"PO Number"}
             disabled={true}
             value={data[0]?.po_no || ""}
-          />
+          /> */}
           <LabInput
             placeholder={"Supplier Name"}
             disabled={true}
