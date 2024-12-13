@@ -237,6 +237,7 @@ const Sales = () => {
       setTimeout(() => {
         setMessage("");
       }, 2000);
+      barcodeInputRef.current.focus();
     } catch (error) {
       console.log(error);
     }
