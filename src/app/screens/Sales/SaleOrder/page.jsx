@@ -213,9 +213,8 @@ const Sales = () => {
     setTotalRecieve(total);
   };
 
-  const handleData = async () => {
+  const handleData = async (name_cost) => {
     try {
-      if (costumer_name === "") return alert(`Please Enter Customer name`);
       const response = await fetch(`${url}/sales`, {
         method: "post",
         headers: {
@@ -227,7 +226,7 @@ const Sales = () => {
           totalPrice,
           totalPurchase,
           r_amount: totalRecieve,
-          costumer_name,
+          costumer_name: name_cost,
         }),
       });
       let newResponse = (await response.json()).data;
@@ -311,10 +310,15 @@ const Sales = () => {
           <p className="font bold mt-3 underline ">{message}</p>
         </div>
         <div className="flex justify-center space-x-3 mt-4">
-          {data.length !== 0 && costumer_name !== "" && (
-            <Button text={"Save"} onClick={handleData} />
+          {data.length !== 0 && (
+            <Button
+              text={"Save"}
+              onClick={() =>
+                handleData(costumer_name === "" ? "Cash" : costumer_name)
+              }
+            />
           )}
-          <Button text={"reset"} onClick={() => reset()} />
+          {/* <Button text={"reset"} onClick={() => reset()} /> */}
         </div>
       </Card>
 

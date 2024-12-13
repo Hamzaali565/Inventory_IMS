@@ -96,7 +96,7 @@ const ListOfItems = () => {
               <p className="w-[10%] text-center border-r-2">{items?.c_user}</p>
               <p className="w-[10%] text-center">
                 {items?.c_at
-                  ? moment(items?.c_date).format("DD/MM/YYYY HH:mm:ss")
+                  ? moment(items?.c_at).format("DD/MM/YYYY HH:mm:ss")
                   : ""}
               </p>
             </div>
