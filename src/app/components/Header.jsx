@@ -54,7 +54,7 @@ const menuConfig = [
         label: "Reports",
         subItems: [
           { label: "Credit Customers", route: "/screens/Sales/CreditCustomer" },
-          { label: "Cash Status" },
+          { label: "Cash Report", route: "/screens/Sales/Cash-Report" },
         ],
       },
     ],
