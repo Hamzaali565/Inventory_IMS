@@ -32,7 +32,7 @@ const menuConfig = [
             route: "/screens/Inventory/P-Stock",
           },
           { label: "List of Items", route: "/screens/Inventory/List-Of-Items" },
-          { label: "List of GRNs" },
+          { label: "List of GRNs", route: "/screens/Inventory/List-Of-Grn" },
         ],
       },
     ],
