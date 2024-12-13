@@ -54,9 +54,7 @@ const menuConfig = [
         label: "Reports",
         subItems: [
           { label: "Credit Customers", route: "/screens/Sales/CreditCustomer" },
-          { label: "Date Wise Profit" },
           { label: "Cash Status" },
-          { label: "Shift Status" },
         ],
       },
     ],
