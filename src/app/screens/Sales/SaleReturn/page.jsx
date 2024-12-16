@@ -20,7 +20,6 @@ const SaleReturn = () => {
   // Ref to focus the input
   const barcodeInputRef = useRef(null);
   const secondInputRef = useRef(null);
-  const errorSound = new Audio("/audio/ErrorMessage.mp3");
   // Focus the input on page load
   useEffect(() => {
     if (barcodeInputRef.current) {
@@ -113,7 +112,6 @@ const SaleReturn = () => {
     } catch (error) {
       console.error("Error:", error);
       setBarCode("");
-      errorSound.play();
     }
   };
 

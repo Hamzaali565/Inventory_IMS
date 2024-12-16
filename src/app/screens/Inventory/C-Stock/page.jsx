@@ -90,7 +90,7 @@ const CStock = () => {
                   Pack Size Quantity
                 </p>
                 <p className="w-[10%] text-center border-2 border-r-0">
-                  Availaible Stock
+                  Available Stock
                 </p>
                 <p className="w-[15%] text-center border-2 border-r-0">
                   Created User
@@ -123,7 +123,7 @@ const CStock = () => {
                   </div>
                 ))}
               <p className="text-green-500 text-right mr-9">
-                Total Availaible stock{" "}
+                Total Available stock{" "}
                 {items
                   .reduce((total, item) => total + item?.p_size_stock, 0)
                   .toLocaleString()}

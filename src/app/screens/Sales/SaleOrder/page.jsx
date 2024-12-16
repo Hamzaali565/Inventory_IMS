@@ -24,7 +24,7 @@ const Sales = () => {
   // Ref to focus the input
   const barcodeInputRef = useRef(null);
   const secondInputRef = useRef(null);
-  const errorSound = new Audio("/audio/ErrorMessage.mp3");
+  // const errorSound = new Audio("/audio/ErrorMessage.mp3");
   // Focus the input on page load
 
   const reset = () => {
@@ -111,16 +111,19 @@ const Sales = () => {
 
       // Clear the input
       setBarCode("");
-      if (barcodeInputRef.current) {
-        barcodeInputRef.current.focus();
+      if (key === "id") {
+        if (itemNameInputRef.current) {
+          focusSecondInput();
+        }
+      } else {
+        if (barcodeInputRef.current) {
+          barcodeInputRef.current.focus();
+        }
       }
-
-      // Auto-focus second input after processing barcode
-      focusSecondInput();
     } catch (error) {
       console.error("Error:", error);
       setBarCode("");
-      errorSound.play();
+      // errorSound.play();
     }
   };
 
@@ -292,12 +295,6 @@ const Sales = () => {
                 debouncedCallForItem(value); // Trigger debounced call
               }}
             />
-            {/* <LabInput
-              label={"Costumer name"}
-              onChange={(e) => setCostumerName(e.target.value.toUpperCase())}
-              placeholder={"Costumer Name"}
-              value={costumer_name}
-            /> */}
             <SearchSuggestions
               onClick={(data) => recieve_from_parent(data)}
               ref={secondInputRef}
