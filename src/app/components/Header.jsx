@@ -51,6 +51,10 @@ const menuConfig = [
         label: "Reports",
         subItems: [
           { label: "Credit Customers", route: "/screens/Sales/CreditCustomer" },
+          {
+            label: "List Of Other Expenses",
+            route: "/screens/Sales/List-Of-Expenses",
+          },
           { label: "Cash Report", route: "/screens/Sales/Cash-Report" },
         ],
       },

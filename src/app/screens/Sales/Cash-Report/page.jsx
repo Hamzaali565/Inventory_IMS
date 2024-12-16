@@ -80,9 +80,8 @@ const CashReport = () => {
               <p className="w-[15%] text-center border-r-2">Receive Amount</p>
               <p className="w-[15%] text-center border-r-2">Total Purchasing</p>
               <p className="w-[15%] text-center border-r-2">Total Refund</p>
-              <p className="w-[25%] text-center border-r-2">
-                Total Payment To Supplier
-              </p>
+              <p className="w-[10%] text-center border-r-2">Other Expense</p>
+              <p className="w-[15%] text-center border-r-2">Pay To Supplier</p>
             </div>
 
             <div className="flex w-[100%] border-2 text-lg">
@@ -101,7 +100,10 @@ const CashReport = () => {
               <p className="w-[15%] text-center border-r-2">
                 {data[2].total_refund}
               </p>
-              <p className="w-[25%] text-center border-r-2">
+              <p className="w-[10%] text-center border-r-2">
+                {data[4].other_expense}
+              </p>
+              <p className="w-[15%] text-center border-r-2">
                 {data[3].total_payment_to_supplier}
               </p>
             </div>
