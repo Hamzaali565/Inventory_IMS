@@ -63,7 +63,7 @@ const PaymentToSupplier = () => {
         },
         body: JSON.stringify({
           payment_type: paymentType,
-          remarks: remarks,
+          remarks: "Against Local Purchasing",
           paying: paying,
           supplier_name: data?.supplier_name,
           supplier_id: data?.supplier_id,
@@ -86,7 +86,6 @@ const PaymentToSupplier = () => {
     setData(null);
     setPaymentType("");
     setPaying(0);
-    setRemarks("");
     setBillType(false);
   };
 
