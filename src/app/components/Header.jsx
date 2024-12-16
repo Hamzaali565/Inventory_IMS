@@ -40,16 +40,13 @@ const menuConfig = [
   {
     trigger: "Sales",
     items: [
-      { label: "Create Shift" },
-      { label: "Close Shift" },
       { label: "Create Sales Order", route: "/screens/Sales/SaleOrder" },
       { label: "Sale Return", route: "/screens/Sales/SaleReturn" },
       {
         label: "Receive Credit Amount",
         route: "/screens/Sales/ReceiveCreditAmount",
       },
-      { label: "Pending Bills" },
-      { label: "Re-Print Bill" },
+      { label: "Other Expense", route: "/screens/Sales/Other-Expense" },
       {
         label: "Reports",
         subItems: [
