@@ -4,6 +4,7 @@ import { Button } from "@/app/components/Button";
 import { Card } from "@/app/components/Card";
 import Heading from "@/app/components/Heading";
 import { LabInput } from "@/app/components/LabInput";
+import Loader from "@/app/components/Loader";
 import Modal from "@/app/components/Modal";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -22,6 +23,8 @@ const DirectGrn = () => {
   const [data, setData] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [open, setOpen] = useState(false);
+
   const [dGrn, setDGrn] = useState([
     {
       item_id: 0,
@@ -273,6 +276,7 @@ const DirectGrn = () => {
 
   const submitHandler = async (myData) => {
     try {
+      setOpen(true);
       const response = await fetch(`${url}/direct-grn`, {
         method: "POST",
         headers: {
@@ -298,9 +302,11 @@ const DirectGrn = () => {
       console.log(dataRes);
       reset();
       alert(`GRN Created Successfully ⚡⚡`);
+      setOpen(false);
     } catch (error) {
       console.log(error);
       alert(`GRN creation failed contact to Muhammad Hamza !!!`);
+      setOpen(false);
     }
   };
 
@@ -505,6 +511,7 @@ const DirectGrn = () => {
         placeholder="Search"
         onClick={(data) => updateForItem(data)}
       />
+      <Loader visible={open} />
     </div>
   );
 };

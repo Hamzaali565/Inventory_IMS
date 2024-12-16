@@ -9,12 +9,14 @@ import React, { useState } from "react";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { useSelector } from "react-redux";
+import Loader from "@/app/components/Loader";
 
 const Stock = () => {
   const [isItemOpen, setIsItemOpen] = useState(false);
   const [openLocation, setOpenLocation] = useState(false);
   const [location, setLocation] = useState(null);
   const [modalIndex, setModalIndex] = useState(0);
+  const [open, setOpen] = useState(false);
   const [data, setData] = useState([
     {
       item_name: "",
@@ -252,6 +254,7 @@ const Stock = () => {
 
   const submitData = async (authenticData) => {
     try {
+      setOpen(true);
       console.log(authenticData);
       let newData = authenticData.map((items) => ({
         ...items,
@@ -272,8 +275,10 @@ const Stock = () => {
       }
       console.log(await response.json());
       alert(`Stock Uploaded Successfully 😎😎 !!!`);
+      setOpen(false);
       reset();
     } catch (error) {
+      setOpen(false);
       console.log(error);
     }
   };
@@ -428,6 +433,7 @@ const Stock = () => {
         placeholder="Search"
         onClick={(data) => updateLocation(data, "location_name")}
       />
+      <Loader visible={open} />
     </div>
   );
 };

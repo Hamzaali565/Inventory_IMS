@@ -8,6 +8,7 @@ import { debounce } from "lodash";
 import { Button } from "@/app/components/Button";
 import SearchSuggestions from "@/app/components/SearchSuggestions";
 import SuggestName from "@/app/components/SuggestName";
+import Loader from "@/app/components/Loader";
 const Sales = () => {
   const url = useSelector((state) => state.main.url);
 
@@ -19,6 +20,7 @@ const Sales = () => {
   const [totalRecieve, setTotalRecieve] = useState(0);
   const [message, setMessage] = useState("");
   const [costumer_name, setCostumerName] = useState("");
+  const [open, setOpen] = useState(false);
   const [previousPendings, setPreviousPendings] = useState([]);
 
   // Ref to focus the input
@@ -218,6 +220,7 @@ const Sales = () => {
 
   const handleData = async (name_cost) => {
     try {
+      setOpen(true);
       const response = await fetch(`${url}/sales`, {
         method: "post",
         headers: {
@@ -234,7 +237,7 @@ const Sales = () => {
       });
       let newResponse = (await response.json()).data;
       setMessage(newResponse);
-      console.log("data", data);
+      setOpen(false);
 
       reset();
       setTimeout(() => {
@@ -243,6 +246,7 @@ const Sales = () => {
       barcodeInputRef.current.focus();
     } catch (error) {
       console.log(error);
+      setOpen(false);
     }
   };
 
@@ -479,6 +483,7 @@ const Sales = () => {
           </div>
         )}
       </Card>
+      <Loader visible={open} />
     </div>
   );
 };

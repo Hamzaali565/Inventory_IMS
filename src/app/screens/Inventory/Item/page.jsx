@@ -8,6 +8,7 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import Loader from "@/app/components/Loader";
 
 const Inventory = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,6 +16,7 @@ const Inventory = () => {
   const [isItemOpen, setIsItemOpen] = useState(false);
   const [item_id, setitem_id] = useState(0);
   const [exceldata, setExcelData] = useState([]);
+  const [open, setOpen] = useState(false);
   const [itemDetail, setItemDetail] = useState({
     item_name: "",
     item_unit: "",
@@ -143,7 +145,7 @@ const Inventory = () => {
           return;
         }
       }
-
+      setOpen(true);
       const response = await fetch(`${url}/item`, {
         method: "POST",
         headers: {
@@ -157,9 +159,11 @@ const Inventory = () => {
       }
       console.log(await response.json());
       alert(`Item Created Successfully ✨✨✨`);
+      setOpen(false);
       reset();
     } catch (error) {
       alert(`Item Created Failed !!!`);
+      setOpen(false);
       console.error(error);
     }
   };
@@ -448,6 +452,7 @@ const Inventory = () => {
           <Button onClick={() => reset()} text="Reset" />
         </div>
       </Card>
+      <Loader visible={open} />
     </div>
   );
 };
