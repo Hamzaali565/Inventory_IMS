@@ -280,7 +280,7 @@ const Sales = () => {
   };
 
   return (
-    <div>
+    <div className="">
       <Card className={"p-2 mt-2"}>
         <Heading text={"Sales Order"} />
       </Card>
@@ -324,7 +324,7 @@ const Sales = () => {
         </div>
       </Card>
 
-      <Card className={"mt-3 p-2"}>
+      <Card className={"mt-3 p-2 -z-10 relative"}>
         <div className="flex justify-between p-2">
           <p className="w-[5%] border-2 text-center border-r-0">S. No.</p>
           <p className="w-[15%] border-2 text-center border-r-0">Item Name</p>
