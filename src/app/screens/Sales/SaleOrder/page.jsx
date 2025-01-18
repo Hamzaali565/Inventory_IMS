@@ -324,7 +324,7 @@ const Sales = () => {
         </div>
       </Card>
 
-      <Card className={"mt-3 p-2 -z-10 relative"}>
+      <Card className={"mt-3 p-2 fixed -z-20 w-full h-full"}>
         <div className="flex justify-between p-2">
           <p className="w-[5%] border-2 text-center border-r-0">S. No.</p>
           <p className="w-[15%] border-2 text-center border-r-0">Item Name</p>
@@ -346,142 +346,150 @@ const Sales = () => {
           <p className="w-[5%] border-2 text-center border-r-0">Total</p>
           <p className="w-[10%] border-2 text-center ">Rem</p>
         </div>
-
-        {data.length !== 0 &&
-          data?.map((items, index) => (
-            <div className="flex justify-between mt-1" key={index}>
-              <p className="w-[5%] border-2 text-center border-r-0">
-                {index + 1}
-              </p>
-              <p
-                className={`${
-                  items?.p_size_status === 1 ? "text-green-600" : ""
-                } w-[15%] border-2 text-center border-r-0 text-sm `}
+        <div className="overflow-y-auto h-[calc(100%-20rem)] pb-2">
+          {data.length !== 0 &&
+            data?.map((items, index) => (
+              <div
+                className={`flex justify-between mt-1 ${
+                  items?.batch_no ? "bg-red-600" : ""
+                }`}
+                key={index}
               >
-                {items?.item_name}
-              </p>
-              <p className="w-[10%] border-2 text-center border-r-0">
-                {items?.item_unit}
-              </p>
-              <p className="w-[10%] border-2 text-center border-r-0">
-                {items?.p_size_status === 0 ? "False" : "True"}
-              </p>
-              <p className="w-[5%] border-2 text-center border-r-0">
-                {items?.p_size_qty}
-              </p>
-              <p className="w-[10%] border-2 text-center border-r-0">
-                {items?.p_size_status === 0
-                  ? items?.p_price
-                  : items?.p_price_per_size}
-              </p>
-              <p className="w-[10%] border-2 text-center border-r-0">
-                <input
-                  type="number"
-                  className="w-20 rounded-2xl pl-2 bg-gray-500 placeholder:text-[11px] placeholder:pl-1"
-                  placeholder="sale price"
-                  onChange={(e) =>
-                    handleInputs(e.target.value, items, "s_price")
-                  }
-                  value={
-                    items?.p_size_status === 0
-                      ? items?.s_price
-                      : items?.s_price_per_size
-                  }
-                />
-              </p>
-              <p className="w-[10%] border-2 text-center border-r-0">
-                {items?.total_stock ? items?.total_stock : items?.batch_no}
-              </p>
-              <p className="w-[10%] border-2 text-center border-r-0">
-                <input
-                  type="number"
-                  className="w-20 rounded-2xl pl-2 bg-gray-500 placeholder:text-[11px] placeholder:pl-1"
-                  placeholder="Dispence qty"
-                  value={items?.d_qty}
-                  onChange={(e) => handleInputs(e.target.value, items, "d_qty")}
-                />
-              </p>
-              <p className="w-[5%] border-2 text-center border-r-0">
-                {items?.t_price}
-              </p>
-              <p
-                className="w-[10%] border-2 text-center text-sm p-1 font-bold text-red-600 cursor-pointer"
-                onClick={() => removeRow(index)}
-              >
-                ---
-              </p>
-            </div>
-          ))}
-        {data.length !== 0 && (
-          <div className="mt-3 flex flex-col items-end">
-            <div className="border-2 w-72 flex border-b-0 text-center">
-              <p className="border-r-2 w-[50%]">Total Amount</p>
-              <p className="w-[50%]">{totalPrice.toFixed(3)}</p>
-            </div>
-            <div className="border-2 w-72 flex border-b-0 text-center">
-              <p className="border-r-2 w-[50%]">Total Receive</p>
-
-              <p className="w-[50%] p-2">
-                {/* {totalPrice.toFixed(3)} */}
-                <input
-                  type="number"
-                  className="w-[80%] text-black"
-                  name=""
-                  id=""
-                  value={totalRecieve}
-                  onChange={(e) => updateRecievable(+e.target.value)}
-                />
-              </p>
-            </div>
-            <div className="border-2 w-72 flex  text-center">
-              <p className="border-r-2 border-t-0 w-[50%]">Total Puchase</p>
-              <p className="w-[50%]">{totalPurchase.toFixed(3)}</p>
-            </div>
-            <div className="border-2 w-72 flex border-t-0 text-center">
-              <p className="border-r-2 w-[50%]">Total Profit</p>
-              <p className="w-[50%]">
-                {(totalPrice - totalPurchase).toFixed(3)}
-              </p>
-            </div>
-            <div className="border-2 w-72 flex border-t-0 text-center">
-              <p className="border-r-2 w-[50%]">Customer Name</p>
-              <p className="w-[50%]">{costumer_name}</p>
-            </div>
-          </div>
-        )}
-
-        {previousPendings.length !== 0 && (
-          <div>
-            <Heading
-              text={"PREVIOUS PENDING HISTORY"}
-              className={"my-4 text-2xl underline"}
-            />
-            <div className="w-[100%] flex border-2">
-              <p className="w-[20%] text-center border-r-2">Invoice No</p>
-              <p className="w-[20%] text-center border-r-2">Costumer Name</p>
-              <p className="w-[20%] text-center border-r-2">Total Charges</p>
-              <p className="w-[20%] text-center border-r-2">Recieve Amount</p>
-              <p className="w-[20%] text-center">Pending Amount</p>
-            </div>
-            {previousPendings.map((items, index) => (
-              <div className="w-[100%] flex border-2" key={index}>
-                <p className="w-[20%] text-center border-r-2">{items?.id}</p>
-                <p className="w-[20%] text-center border-r-2">
-                  {items?.costumer_name}
+                <p className="w-[5%] border-2 text-center border-r-0">
+                  {index + 1}
                 </p>
-                <p className="w-[20%] text-center border-r-2">
-                  {items?.total_charges}
+                <p
+                  className={`${
+                    items?.p_size_status === 1 ? "text-green-600" : ""
+                  } w-[15%] border-2 text-center border-r-0 text-sm `}
+                >
+                  {items?.item_name}
                 </p>
-                <p className="w-[20%] text-center border-r-2">
-                  {items?.r_amount}
+                <p className="w-[10%] border-2 text-center border-r-0">
+                  {items?.item_unit}
                 </p>
-                <p className="w-[20%] text-center">
-                  {items?.total_charges - items?.r_amount}
+                <p className="w-[10%] border-2 text-center border-r-0">
+                  {items?.p_size_status === 0 ? "False" : "True"}
+                </p>
+                <p className="w-[5%] border-2 text-center border-r-0">
+                  {items?.p_size_qty}
+                </p>
+                <p className="w-[10%] border-2 text-center border-r-0">
+                  {items?.p_size_status === 0
+                    ? items?.p_price
+                    : items?.p_price_per_size}
+                </p>
+                <p className="w-[10%] border-2 text-center border-r-0  relative z-30">
+                  <input
+                    type="number"
+                    className="w-20 rounded-2xl pl-2 bg-gray-500 placeholder:text-[11px] placeholder:pl-1"
+                    placeholder="sale price"
+                    onChange={(e) =>
+                      handleInputs(e.target.value, items, "s_price")
+                    }
+                    value={
+                      items?.p_size_status === 0
+                        ? items?.s_price
+                        : items?.s_price_per_size
+                    }
+                  />
+                </p>
+                <p className="w-[10%] border-2 text-center border-r-0">
+                  {items?.total_stock ? items?.total_stock : items?.batch_no}
+                </p>
+                <p className="w-[10%] border-2 text-center border-r-0">
+                  <input
+                    type="number"
+                    className="w-20 rounded-2xl pl-2 bg-gray-500 placeholder:text-[11px] placeholder:pl-1"
+                    placeholder="Dispence qty"
+                    value={items?.d_qty}
+                    onChange={(e) =>
+                      handleInputs(e.target.value, items, "d_qty")
+                    }
+                  />
+                </p>
+                <p className="w-[5%] border-2 text-center border-r-0">
+                  {items?.t_price}
+                </p>
+                <p
+                  className="w-[10%] border-2 text-center text-sm p-1 font-bold text-red-600 cursor-pointer"
+                  onClick={() => removeRow(index)}
+                >
+                  ---
                 </p>
               </div>
             ))}
-          </div>
-        )}
+          {data.length !== 0 && (
+            <div className="mt-3 flex flex-col items-end">
+              <div className="border-2 w-72 flex border-b-0 text-center">
+                <p className="border-r-2 w-[50%]">Total Amount</p>
+                <p className="w-[50%]">{totalPrice.toFixed(3)}</p>
+              </div>
+              <div className="border-2 w-72 flex border-b-0 text-center">
+                <p className="border-r-2 w-[50%]">Total Receive</p>
+
+                <p className="w-[50%] p-2">
+                  {/* {totalPrice.toFixed(3)} */}
+                  <input
+                    type="number"
+                    className="w-[80%] text-black"
+                    name=""
+                    id=""
+                    value={totalRecieve}
+                    onChange={(e) => updateRecievable(+e.target.value)}
+                  />
+                </p>
+              </div>
+              <div className="border-2 w-72 flex  text-center">
+                <p className="border-r-2 border-t-0 w-[50%]">Total Puchase</p>
+                <p className="w-[50%]">{totalPurchase.toFixed(3)}</p>
+              </div>
+              <div className="border-2 w-72 flex border-t-0 text-center">
+                <p className="border-r-2 w-[50%]">Total Profit</p>
+                <p className="w-[50%]">
+                  {(totalPrice - totalPurchase).toFixed(3)}
+                </p>
+              </div>
+              <div className="border-2 w-72 flex border-t-0 text-center">
+                <p className="border-r-2 w-[50%]">Customer Name</p>
+                <p className="w-[50%]">{costumer_name}</p>
+              </div>
+            </div>
+          )}
+
+          {previousPendings.length !== 0 && (
+            <div>
+              <Heading
+                text={"PREVIOUS PENDING HISTORY"}
+                className={"my-4 text-2xl underline"}
+              />
+              <div className="w-[100%] flex border-2">
+                <p className="w-[20%] text-center border-r-2">Invoice No</p>
+                <p className="w-[20%] text-center border-r-2">Costumer Name</p>
+                <p className="w-[20%] text-center border-r-2">Total Charges</p>
+                <p className="w-[20%] text-center border-r-2">Recieve Amount</p>
+                <p className="w-[20%] text-center">Pending Amount</p>
+              </div>
+              {previousPendings.map((items, index) => (
+                <div className="w-[100%] flex border-2" key={index}>
+                  <p className="w-[20%] text-center border-r-2">{items?.id}</p>
+                  <p className="w-[20%] text-center border-r-2">
+                    {items?.costumer_name}
+                  </p>
+                  <p className="w-[20%] text-center border-r-2">
+                    {items?.total_charges}
+                  </p>
+                  <p className="w-[20%] text-center border-r-2">
+                    {items?.r_amount}
+                  </p>
+                  <p className="w-[20%] text-center">
+                    {items?.total_charges - items?.r_amount}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </Card>
       <Loader visible={open} />
     </div>
